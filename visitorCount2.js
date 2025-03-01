@@ -31,12 +31,25 @@ async function updateVisitorCount() {
 
     try {
         const visitorSnap = await getDoc(visitorRef);
-        if (visitorSnap.exists()) {
-            await updateDoc(visitorRef, { count: increment(1) });
-        } else {
-            // If the country is not found in the database, add it with a count of 1
-            await setDoc(visitorRef, { count: 1 });
-        }
+		        // 檢查是否在過去 30 分鐘內訪問過
+        if (!lastVisitTime || (now - lastVisitTime) > 30 * 60 * 1000) {
+            const visitorSnap = await getDoc(visitorRef);
+            if (visitorSnap.exists()) {
+                await updateDoc(visitorRef, { count: increment(1) });
+            } else {
+                await setDoc(visitorRef, { count: 1 });
+            }
+
+            // 更新 IP 的最後訪問時間
+            await setDoc(ipRef, { lastVisitTime: now });
+
+            // 讀取所有國家的計數
+            const snapshot = await getDoc(visitorRef);
+            const data = snapshot.data();
+
+            // 顯示統計數據
+            displayVisitorCounts(country, data.count);
+		
     } catch (error) {
         console.error("Error updating visitor count:", error);
     }
