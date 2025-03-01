@@ -14,60 +14,59 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 获取访问者的国家
+// 獲取訪客的國家資訊
 async function getVisitorCountry() {
     try {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
-        return data.country_name || "Unknown";
+        return data.country_name || "Unknown"; // 如果獲取失敗，回傳 "Unknown"
     } catch (error) {
         console.error('Error fetching country:', error);
         return "Unknown";
     }
 }
 
-// 获取访问者的 IP 地址
+// 獲取訪客的 IP 地址
 async function getVisitorIP() {
     try {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
-        return data.ip || "Unknown";
+        return data.ip || "Unknown"; // 如果獲取失敗，回傳 "Unknown"
     } catch (error) {
         console.error('Error fetching IP:', error);
         return "Unknown";
     }
 }
 
-// 更新访问量
+// 更新各國瀏覽數量
 async function updateVisitorCount() {
-    const country = await getVisitorCountry();  // ✅ 获取访问者国家
-    const ip = await getVisitorIP();  // ✅ 获取访问者IP
+    const country = await getVisitorCountry();
+    const ip = await getVisitorIP();
     const visitorRef = doc(db, "visitors", country);
     const ipRef = doc(db, "ips", ip);
 
     try {
-        const now = new Date();
         const ipSnap = await getDoc(ipRef);
-        const lastVisitTime = ipSnap.exists() ? ipSnap.data().lastVisitTime.toMillis() : null;
+        const now = new Date();
+        const lastVisitTime = ipSnap.exists() ? ipSnap.data().lastVisitTime.toDate() : null;
 
-        // 仅在 30 分钟内未访问过时更新
-        if (!lastVisitTime || (now.getTime() - lastVisitTime) > 30 * 60 * 1000) {
+        // 檢查是否在過去 30 分鐘內訪問過
+        if (!lastVisitTime || (now - lastVisitTime) > 30 * 60 * 1000) {
             const visitorSnap = await getDoc(visitorRef);
-
             if (visitorSnap.exists()) {
                 await updateDoc(visitorRef, { count: increment(1) });
             } else {
                 await setDoc(visitorRef, { count: 1 });
             }
 
-            // 更新 IP 访问时间
+            // 更新 IP 的最後訪問時間
             await setDoc(ipRef, { lastVisitTime: now });
 
-            // 获取更新后的访问次数
-            const updatedSnap = await getDoc(visitorRef);
-            const data = updatedSnap.data();
+            // 讀取所有國家的計數
+            const snapshot = await getDoc(visitorRef);
+            const data = snapshot.data();
 
-            // 显示更新的访问数据
+            // 顯示統計數據
             displayVisitorCounts(country, data.count);
         }
     } catch (error) {
@@ -75,7 +74,7 @@ async function updateVisitorCount() {
     }
 }
 
-// 获取国家代码
+// 將國家名稱轉換為 ISO 代碼
 function getCountryCode(countryName) {
     const countryCodes = {
         "Afghanistan": "af", "Albania": "al", "Algeria": "dz", "Andorra": "ad", "Angola": "ao", "Argentina": "ar",
@@ -101,10 +100,10 @@ function getCountryCode(countryName) {
     return countryCodes[countryName] || "Unknown";
 }
 
-// 显示所有国家访问量
+// 顯示所有國家的瀏覽數量
 async function displayAllVisitorCounts() {
     const visitorCountsElement = document.getElementById('visitor-counts');
-    visitorCountsElement.innerHTML = '';
+    visitorCountsElement.innerHTML = ''; // 清空現有內容
 
     try {
         const querySnapshot = await getDocs(collection(db, "visitors"));
@@ -125,7 +124,8 @@ async function displayAllVisitorCounts() {
     }
 }
 
-// 页面加载时运行
+
+// 初始化
 document.addEventListener('DOMContentLoaded', async () => {
     await updateVisitorCount();
     await displayAllVisitorCounts();
