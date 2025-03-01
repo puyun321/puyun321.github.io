@@ -93,7 +93,7 @@ function getCountryCode(countryName) {
         "Philippines": "ph", "Poland": "pl", "Portugal": "pt", "Qatar": "qa", "Romania": "ro", "Russia": "ru", "Saudi Arabia": "sa",
         "Senegal": "sn", "Serbia": "rs", "Singapore": "sg", "Slovakia": "sk", "Slovenia": "si", "South Africa": "za",
         "South Korea": "kr", "Spain": "es", "Sri Lanka": "lk", "Sudan": "sd", "Sweden": "se", "Switzerland": "ch",
-        "Syria": "sy", "Thailand": "th", "Turkey": "tr", "Ukraine": "ua", "United Arab Emirates": "ae", "United Kingdom": "gb",
+        "Syria": "sy","Taiwan": "tw", "Thailand": "th", "Turkey": "tr", "Ukraine": "ua", "United Arab Emirates": "ae", "United Kingdom": "gb",
         "United States": "us", "Uruguay": "uy", "Vatican City": "va", "Venezuela": "ve", "Vietnam": "vn", "Yemen": "ye",
         "Zambia": "zm", "Zimbabwe": "zw"
     };
