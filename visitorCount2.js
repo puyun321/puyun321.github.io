@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function getVisitorCountry() {
+async function getVisitorIP() {
     try {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
@@ -27,7 +27,7 @@ async function getVisitorCountry() {
 
 // 更新各國瀏覽數量
 async function updateVisitorCount() {
-    const country = await getVisitorCountry();
+    const country = await getVisitorIP();
     const visitorRef = doc(db, "visitors", country);
     const ip = await getVisitorIP();
     const ipRef = doc(db, "ips", ip);
