@@ -25,35 +25,43 @@ async function getVisitorCountry() {
     }
 }
 
+// 更新各國瀏覽數量
 async function updateVisitorCount() {
     const country = await getVisitorCountry();
     const visitorRef = doc(db, "visitors", country);
+    const ip = await getVisitorIP();
+    const ipRef = doc(db, "ips", ip);
 
     try {
-        const visitorSnap = await getDoc(visitorRef);
-		        // 檢查是否在過去 30 分鐘內訪問過
+        const now = new Date();
+        const ipSnap = await getDoc(ipRef);
+        const lastVisitTime = ipSnap.exists() ? ipSnap.data().lastVisitTime.toDate() : null;
+
+        // Check if the user has visited within the last 30 minutes
         if (!lastVisitTime || (now - lastVisitTime) > 30 * 60 * 1000) {
             const visitorSnap = await getDoc(visitorRef);
+
             if (visitorSnap.exists()) {
                 await updateDoc(visitorRef, { count: increment(1) });
             } else {
                 await setDoc(visitorRef, { count: 1 });
             }
 
-            // 更新 IP 的最後訪問時間
+            // Update last visit time for IP tracking
             await setDoc(ipRef, { lastVisitTime: now });
 
-            // 讀取所有國家的計數
-            const snapshot = await getDoc(visitorRef);
-            const data = snapshot.data();
+            // Fetch updated visitor count
+            const updatedSnap = await getDoc(visitorRef);
+            const data = updatedSnap.data();
 
-            // 顯示統計數據
+            // Display updated visitor count
             displayVisitorCounts(country, data.count);
-		
+        }
     } catch (error) {
         console.error("Error updating visitor count:", error);
     }
 }
+
 
 function getCountryCode(countryName) {
     const countryCodes = {
