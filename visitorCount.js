@@ -77,14 +77,25 @@ async function updateVisitorCount() {
 // 將國家名稱轉換為 ISO 代碼
 function getCountryCode(countryName) {
     const countryCodes = {
-        "Canada": "ca",
-        "China": "cn",
-        "Japan": "jp",
-        "Malaysia": "my",
-        "Taiwan": "tw",
-        "United Kingdom": "gb",
-        "United States": "us"
-        // 添加更多國家名稱和對應的 ISO 代碼
+        "Afghanistan": "af", "Albania": "al", "Algeria": "dz", "Andorra": "ad", "Angola": "ao", "Argentina": "ar",
+        "Australia": "au", "Austria": "at", "Azerbaijan": "az", "Bahamas": "bs", "Bahrain": "bh", "Bangladesh": "bd",
+        "Barbados": "bb", "Belarus": "by", "Belgium": "be", "Belize": "bz", "Benin": "bj", "Bhutan": "bt", "Bolivia": "bo",
+        "Bosnia and Herzegovina": "ba", "Botswana": "bw", "Brazil": "br", "Brunei": "bn", "Bulgaria": "bg", "Burkina Faso": "bf",
+        "Burundi": "bi", "Canada": "ca", "Chile": "cl", "China": "cn", "Colombia": "co", "Costa Rica": "cr", "Croatia": "hr",
+        "Cuba": "cu", "Cyprus": "cy", "Czechia": "cz", "Denmark": "dk", "Dominican Republic": "do", "Ecuador": "ec",
+        "Egypt": "eg", "El Salvador": "sv", "Estonia": "ee", "Finland": "fi", "France": "fr", "Germany": "de",
+        "Greece": "gr", "Guatemala": "gt", "Haiti": "ht", "Honduras": "hn", "Hungary": "hu", "Iceland": "is", "India": "in",
+        "Indonesia": "id", "Iran": "ir", "Iraq": "iq", "Ireland": "ie", "Israel": "il", "Italy": "it", "Jamaica": "jm",
+        "Japan": "jp", "Jordan": "jo", "Kazakhstan": "kz", "Kenya": "ke", "Kuwait": "kw", "Latvia": "lv", "Lebanon": "lb",
+        "Libya": "ly", "Lithuania": "lt", "Luxembourg": "lu", "Malaysia": "my", "Maldives": "mv", "Mexico": "mx",
+        "Monaco": "mc", "Mongolia": "mn", "Morocco": "ma", "Nepal": "np", "Netherlands": "nl", "New Zealand": "nz",
+        "Nigeria": "ng", "Norway": "no", "Oman": "om", "Pakistan": "pk", "Palestine": "ps", "Panama": "pa", "Peru": "pe",
+        "Philippines": "ph", "Poland": "pl", "Portugal": "pt", "Qatar": "qa", "Romania": "ro", "Russia": "ru", "Saudi Arabia": "sa",
+        "Senegal": "sn", "Serbia": "rs", "Singapore": "sg", "Slovakia": "sk", "Slovenia": "si", "South Africa": "za",
+        "South Korea": "kr", "Spain": "es", "Sri Lanka": "lk", "Sudan": "sd", "Sweden": "se", "Switzerland": "ch",
+        "Syria": "sy","Taiwan": "tw", "Thailand": "th", "Turkey": "tr", "Ukraine": "ua", "United Arab Emirates": "ae", "United Kingdom": "gb",
+        "United States": "us", "Uruguay": "uy", "Vatican City": "va", "Venezuela": "ve", "Vietnam": "vn", "Yemen": "ye",
+        "Zambia": "zm", "Zimbabwe": "zw"
     };
     return countryCodes[countryName] || "Unknown";
 }
@@ -104,7 +115,7 @@ async function displayAllVisitorCounts() {
             if (countryCode !== "Unknown") {
                 const div = document.createElement('div');
                 div.classList.add('visitor-count-item');
-                div.innerHTML = `<span class="fi fi-${countryCode.toLowerCase()}"></span> <h4>${country}: ${count} 次</h4>`;
+                div.innerHTML = `<span class="fi fi-${countryCode.toLowerCase()}"></span>: ${count}`;
                 visitorCountsElement.appendChild(div);
             }
         });
@@ -112,6 +123,7 @@ async function displayAllVisitorCounts() {
         console.error("Error fetching visitor counts:", error);
     }
 }
+
 
 // 初始化
 document.addEventListener('DOMContentLoaded', async () => {
