@@ -34,6 +34,7 @@ async function updateVisitorCount() {
         if (visitorSnap.exists()) {
             await updateDoc(visitorRef, { count: increment(1) });
         } else {
+            // If the country is not found in the database, add it with a count of 1
             await setDoc(visitorRef, { count: 1 });
         }
     } catch (error) {
