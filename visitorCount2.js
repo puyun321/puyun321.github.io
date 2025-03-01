@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function getVisitorIP() {
+async function getVisitorCountry() {
     try {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
@@ -25,11 +25,22 @@ async function getVisitorIP() {
     }
 }
 
+async function getVisitorIP() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        return data.ip || "Unknown";
+    } catch (error) {
+        console.error('Error fetching IP:', error);
+        return "Unknown";
+    }
+}
+
 // 更新各國瀏覽數量
 async function updateVisitorCount() {
-    const country = await getVisitorIP();
-    const visitorRef = doc(db, "visitors", country);
+    const country = await getVisitorCountry(); 
     const ip = await getVisitorIP();
+    const visitorRef = doc(db, "visitors", country);
     const ipRef = doc(db, "ips", ip);
 
     try {
