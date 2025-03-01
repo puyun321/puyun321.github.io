@@ -14,6 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// 获取访问者的国家
 async function getVisitorCountry() {
     try {
         const response = await fetch('https://ipapi.co/json/');
@@ -25,6 +26,7 @@ async function getVisitorCountry() {
     }
 }
 
+// 获取访问者的 IP 地址
 async function getVisitorIP() {
     try {
         const response = await fetch('https://ipapi.co/json/');
@@ -36,20 +38,20 @@ async function getVisitorIP() {
     }
 }
 
-// 更新各國瀏覽數量
+// 更新访问量
 async function updateVisitorCount() {
-    const country = await getVisitorCountry(); 
-    const ip = await getVisitorIP();
+    const country = await getVisitorCountry();  // ✅ 获取访问者国家
+    const ip = await getVisitorIP();  // ✅ 获取访问者IP
     const visitorRef = doc(db, "visitors", country);
     const ipRef = doc(db, "ips", ip);
 
     try {
         const now = new Date();
         const ipSnap = await getDoc(ipRef);
-        const lastVisitTime = ipSnap.exists() ? ipSnap.data().lastVisitTime.toDate() : null;
+        const lastVisitTime = ipSnap.exists() ? ipSnap.data().lastVisitTime.toMillis() : null;
 
-        // Check if the user has visited within the last 30 minutes
-        if (!lastVisitTime || (now - lastVisitTime) > 30 * 60 * 1000) {
+        // 仅在 30 分钟内未访问过时更新
+        if (!lastVisitTime || (now.getTime() - lastVisitTime) > 30 * 60 * 1000) {
             const visitorSnap = await getDoc(visitorRef);
 
             if (visitorSnap.exists()) {
@@ -58,14 +60,14 @@ async function updateVisitorCount() {
                 await setDoc(visitorRef, { count: 1 });
             }
 
-            // Update last visit time for IP tracking
+            // 更新 IP 访问时间
             await setDoc(ipRef, { lastVisitTime: now });
 
-            // Fetch updated visitor count
+            // 获取更新后的访问次数
             const updatedSnap = await getDoc(visitorRef);
             const data = updatedSnap.data();
 
-            // Display updated visitor count
+            // 显示更新的访问数据
             displayVisitorCounts(country, data.count);
         }
     } catch (error) {
@@ -73,45 +75,33 @@ async function updateVisitorCount() {
     }
 }
 
-
+// 获取国家代码
 function getCountryCode(countryName) {
     const countryCodes = {
-        "Afghanistan": "af", "Albania": "al", "Algeria": "dz", "Andorra": "ad", "Angola": "ao", "Antigua and Barbuda": "ag",
-        "Argentina": "ar", "Armenia": "am", "Australia": "au", "Austria": "at", "Azerbaijan": "az", "Bahamas": "bs",
-        "Bahrain": "bh", "Bangladesh": "bd", "Barbados": "bb", "Belarus": "by", "Belgium": "be", "Belize": "bz",
-        "Benin": "bj", "Bhutan": "bt", "Bolivia": "bo", "Bosnia and Herzegovina": "ba", "Botswana": "bw", "Brazil": "br",
-        "Brunei": "bn", "Bulgaria": "bg", "Burkina Faso": "bf", "Burundi": "bi", "Cabo Verde": "cv", "Cambodia": "kh",
-        "Cameroon": "cm", "Canada": "ca", "Central African Republic": "cf", "Chad": "td", "Chile": "cl", "China": "cn",
-        "Colombia": "co", "Comoros": "km", "Congo (Congo-Brazzaville)": "cg", "Congo (Congo-Kinshasa)": "cd", "Costa Rica": "cr",
-        "Croatia": "hr", "Cuba": "cu", "Cyprus": "cy", "Czechia": "cz", "Denmark": "dk", "Djibouti": "dj", "Dominica": "dm",
-        "Dominican Republic": "do", "Ecuador": "ec", "Egypt": "eg", "El Salvador": "sv", "Equatorial Guinea": "gq", "Eritrea": "er",
-        "Estonia": "ee", "Eswatini": "sz", "Ethiopia": "et", "Fiji": "fj", "Finland": "fi", "France": "fr", "Gabon": "ga",
-        "Gambia": "gm", "Georgia": "ge", "Germany": "de", "Ghana": "gh", "Greece": "gr", "Grenada": "gd", "Guatemala": "gt",
-        "Guinea": "gn", "Guinea-Bissau": "gw", "Guyana": "gy", "Haiti": "ht", "Honduras": "hn", "Hungary": "hu", "Iceland": "is",
-        "India": "in", "Indonesia": "id", "Iran": "ir", "Iraq": "iq", "Ireland": "ie", "Israel": "il", "Italy": "it",
-        "Jamaica": "jm", "Japan": "jp", "Jordan": "jo", "Kazakhstan": "kz", "Kenya": "ke", "Kiribati": "ki", "Kuwait": "kw",
-        "Kyrgyzstan": "kg", "Laos": "la", "Latvia": "lv", "Lebanon": "lb", "Lesotho": "ls", "Liberia": "lr", "Libya": "ly",
-        "Liechtenstein": "li", "Lithuania": "lt", "Luxembourg": "lu", "Madagascar": "mg", "Malawi": "mw", "Malaysia": "my",
-        "Maldives": "mv", "Mali": "ml", "Malta": "mt", "Marshall Islands": "mh", "Mauritania": "mr", "Mauritius": "mu",
-        "Mexico": "mx", "Micronesia": "fm", "Moldova": "md", "Monaco": "mc", "Mongolia": "mn", "Montenegro": "me",
-        "Morocco": "ma", "Mozambique": "mz", "Myanmar": "mm", "Namibia": "na", "Nauru": "nr", "Nepal": "np", "Netherlands": "nl",
-        "New Zealand": "nz", "Nicaragua": "ni", "Niger": "ne", "Nigeria": "ng", "North Korea": "kp", "North Macedonia": "mk",
-        "Norway": "no", "Oman": "om", "Pakistan": "pk", "Palau": "pw", "Palestine": "ps", "Panama": "pa", "Papua New Guinea": "pg",
-        "Paraguay": "py", "Peru": "pe", "Philippines": "ph", "Poland": "pl", "Portugal": "pt", "Qatar": "qa", "Romania": "ro",
-        "Russia": "ru", "Rwanda": "rw", "Saint Kitts and Nevis": "kn", "Saint Lucia": "lc", "Saint Vincent and the Grenadines": "vc",
-        "Samoa": "ws", "San Marino": "sm", "Sao Tome and Principe": "st", "Saudi Arabia": "sa", "Senegal": "sn", "Serbia": "rs",
-        "Seychelles": "sc", "Sierra Leone": "sl", "Singapore": "sg", "Slovakia": "sk", "Slovenia": "si", "Solomon Islands": "sb",
-        "Somalia": "so", "South Africa": "za", "South Korea": "kr", "South Sudan": "ss", "Spain": "es", "Sri Lanka": "lk",
-        "Sudan": "sd", "Suriname": "sr", "Sweden": "se", "Switzerland": "ch", "Syria": "sy", "Tajikistan": "tj", "Tanzania": "tz",
-        "Thailand": "th", "Timor-Leste": "tl", "Togo": "tg", "Tonga": "to", "Trinidad and Tobago": "tt", "Tunisia": "tn",
-        "Turkey": "tr", "Turkmenistan": "tm", "Tuvalu": "tv", "Uganda": "ug", "Ukraine": "ua", "United Arab Emirates": "ae",
-        "United Kingdom": "gb", "United States": "us", "Uruguay": "uy", "Uzbekistan": "uz", "Vanuatu": "vu", "Vatican City": "va",
-        "Venezuela": "ve", "Vietnam": "vn", "Yemen": "ye", "Zambia": "zm", "Zimbabwe": "zw"
+        "Afghanistan": "af", "Albania": "al", "Algeria": "dz", "Andorra": "ad", "Angola": "ao", "Argentina": "ar",
+        "Australia": "au", "Austria": "at", "Azerbaijan": "az", "Bahamas": "bs", "Bahrain": "bh", "Bangladesh": "bd",
+        "Barbados": "bb", "Belarus": "by", "Belgium": "be", "Belize": "bz", "Benin": "bj", "Bhutan": "bt", "Bolivia": "bo",
+        "Bosnia and Herzegovina": "ba", "Botswana": "bw", "Brazil": "br", "Brunei": "bn", "Bulgaria": "bg", "Burkina Faso": "bf",
+        "Burundi": "bi", "Canada": "ca", "Chile": "cl", "China": "cn", "Colombia": "co", "Costa Rica": "cr", "Croatia": "hr",
+        "Cuba": "cu", "Cyprus": "cy", "Czechia": "cz", "Denmark": "dk", "Dominican Republic": "do", "Ecuador": "ec",
+        "Egypt": "eg", "El Salvador": "sv", "Estonia": "ee", "Finland": "fi", "France": "fr", "Germany": "de",
+        "Greece": "gr", "Guatemala": "gt", "Haiti": "ht", "Honduras": "hn", "Hungary": "hu", "Iceland": "is", "India": "in",
+        "Indonesia": "id", "Iran": "ir", "Iraq": "iq", "Ireland": "ie", "Israel": "il", "Italy": "it", "Jamaica": "jm",
+        "Japan": "jp", "Jordan": "jo", "Kazakhstan": "kz", "Kenya": "ke", "Kuwait": "kw", "Latvia": "lv", "Lebanon": "lb",
+        "Libya": "ly", "Lithuania": "lt", "Luxembourg": "lu", "Malaysia": "my", "Maldives": "mv", "Mexico": "mx",
+        "Monaco": "mc", "Mongolia": "mn", "Morocco": "ma", "Nepal": "np", "Netherlands": "nl", "New Zealand": "nz",
+        "Nigeria": "ng", "Norway": "no", "Oman": "om", "Pakistan": "pk", "Palestine": "ps", "Panama": "pa", "Peru": "pe",
+        "Philippines": "ph", "Poland": "pl", "Portugal": "pt", "Qatar": "qa", "Romania": "ro", "Russia": "ru", "Saudi Arabia": "sa",
+        "Senegal": "sn", "Serbia": "rs", "Singapore": "sg", "Slovakia": "sk", "Slovenia": "si", "South Africa": "za",
+        "South Korea": "kr", "Spain": "es", "Sri Lanka": "lk", "Sudan": "sd", "Sweden": "se", "Switzerland": "ch",
+        "Syria": "sy", "Thailand": "th", "Turkey": "tr", "Ukraine": "ua", "United Arab Emirates": "ae", "United Kingdom": "gb",
+        "United States": "us", "Uruguay": "uy", "Vatican City": "va", "Venezuela": "ve", "Vietnam": "vn", "Yemen": "ye",
+        "Zambia": "zm", "Zimbabwe": "zw"
     };
     return countryCodes[countryName] || "Unknown";
 }
 
-
+// 显示所有国家访问量
 async function displayAllVisitorCounts() {
     const visitorCountsElement = document.getElementById('visitor-counts');
     visitorCountsElement.innerHTML = '';
@@ -135,6 +125,7 @@ async function displayAllVisitorCounts() {
     }
 }
 
+// 页面加载时运行
 document.addEventListener('DOMContentLoaded', async () => {
     await updateVisitorCount();
     await displayAllVisitorCounts();
