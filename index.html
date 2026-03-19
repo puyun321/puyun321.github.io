@@ -95,5 +95,32 @@
         </div>
     </div>
 
+<div id="chat-container" style="
+position:fixed;
+bottom:20px;
+right:20px;
+width:320px;
+background:#ffffff;
+border-radius:10px;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
+padding:10px;
+z-index:9999;
+">
+    <div id="chat-box" style="height:200px; overflow-y:auto; border-bottom:1px solid #ccc; margin-bottom:5px;"></div>
+    
+    <input 
+        id="user-input" 
+        type="text" 
+        placeholder="輸入問題..." 
+        style="width:70%;" 
+        onkeypress="if(event.key==='Enter') sendMessage();">
+        
+    <button onclick="sendMessage()">送出</button>
+</div>
+
+<script src="chatbot.js"></script>
+
 </body>
 </html>
+
+
