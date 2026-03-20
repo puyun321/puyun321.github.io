@@ -7,31 +7,23 @@ Created on Fri Mar 20 00:29:02 2026
 
 # -*- coding: utf-8 -*-
 
+# -*- coding: utf-8 -*-
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
-from huggingface_hub import InferenceClient
+# from huggingface_hub import InferenceClient
 import os
+
+os.environ.setdefault("HF_TOKEN", "")  # Set HF_TOKEN in your environment before running
+
 
 # =========================
 # Flask
 # =========================
 app = Flask(__name__)
 CORS(app)
-
-# =========================
-# 🔑 Hugging Face
-# =========================
-hf_token = os.getenv("HF_TOKEN")
-
-if not hf_token:
-    raise ValueError("❌ 請在 Render 設定 HF_TOKEN")
-
-client = InferenceClient(
-    model="mistralai/Mistral-7B-Instruct-v0.2",
-    token=hf_token
-)
 
 # =========================
 # 🌐 抓網站內容
@@ -71,7 +63,7 @@ def split_text(texts, chunk_size=200):
     return chunks
 
 # =========================
-# 🧠 輕量 RAG（Render-friendly）
+# 🧠 簡單檢索
 # =========================
 def retrieve(query, chunks, top_k=3):
     query_words = query.lower().split()
@@ -90,26 +82,68 @@ def retrieve(query, chunks, top_k=3):
     return [c for _, c in scored[:top_k]]
 
 # =========================
-# 🤖 LLM
+# 🤖 LLM（最穩版本）
 # =========================
 def call_llm(prompt):
+    hf_token = os.getenv("HF_TOKEN")
+
+    if not hf_token:
+        return fallback(prompt)
+
     try:
-        response = client.chat_completion(
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=200,
-            temperature=0.7
+        headers = {
+            "Authorization": f"Bearer {hf_token}"
+        }
+
+        payload = {
+            "inputs": prompt,
+            "parameters": {
+                "max_new_tokens": 120,
+                "temperature": 0.7,
+                "return_full_text": False
+            }
+        }
+
+        response = requests.post(
+            "https://router.huggingface.co/hf-inference/models/microsoft/Phi-3-mini-4k-instruct",
+            headers=headers,
+            json=payload,
+            timeout=20
         )
 
-        return response.choices[0].message["content"]
+        print("HF status:", response.status_code)
+        print("HF raw:", response.text[:200])
+
+        data = response.json()
+
+        # 正常回傳
+        if isinstance(data, list):
+            return data[0]["generated_text"]
+
+        # HF error
+        if "error" in data:
+            return fallback(prompt)
+
+        return str(data)
 
     except Exception as e:
         print("HF ERROR:", repr(e))
-        return "（模型暫時無回應）"
+        return fallback(prompt)
 
 # =========================
-# 🚀 Lazy Loading（關鍵）
+# 🛟 fallback（保證有回答）
+# =========================
+def fallback(prompt):
+    # 抓資料部分
+    if "【資料】" in prompt:
+        context = prompt.split("【資料】")[1].split("【問題】")[0]
+        summary = " ".join(context.split()[:80])
+        return f"根據資料，{summary}..."
+
+    return "目前無法取得模型回應"
+
+# =========================
+# 🚀 Lazy Loading
 # =========================
 chunks = None
 
@@ -130,7 +164,7 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    init_rag()  # ⭐ 延遲載入（避免 Render 爆掉）
+    init_rag()
 
     data = request.get_json()
     user_msg = data.get("message", "")
@@ -141,20 +175,15 @@ def chat():
     context = "\n".join(docs)
 
     prompt = f"""
-你是邱普運教授的AI助理，請根據資料回答問題。
+你是一個專業AI助理，請自然回答。
 
-規則：
-- 用自然中文回答
-- 不要逐字重複資料
-- 若資料不足請說不知道
-
-資料：
+【資料】
 {context}
 
-問題：
+【問題】
 {user_msg}
 
-回答：
+【回答】
 """
 
     answer = call_llm(prompt)
@@ -162,7 +191,7 @@ def chat():
     return jsonify({"reply": answer})
 
 # =========================
-# Render 本地 fallback
+# Render / local
 # =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
