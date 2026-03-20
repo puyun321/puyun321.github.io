@@ -7,10 +7,13 @@ Created on Fri Mar 20 00:29:02 2026
 
 # -*- coding: utf-8 -*-
 
+# -*- coding: utf-8 -*-
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 import os
+import re
 from bs4 import BeautifulSoup
 from sentence_transformers import SentenceTransformer
 from transformers import pipeline
@@ -40,9 +43,23 @@ llm = pipeline(
 
 chunks = []
 
+# =========================
+# Semantic routing
+# =========================
+page_descriptions = {
+    "profile": "personal information name biography background",
+    "publication": "research papers journal publications conference articles",
+    "work": "projects AI applications systems development personal work",
+    "award": "awards honors achievements competition prizes",
+    "teaching": "working experience career job position professor researcher",
+    "hobby": "hobbies interests travel leisure activities"
+}
+
+page_keys = list(page_descriptions.keys())
+page_embs = embed_model.encode(list(page_descriptions.values()))
 
 # =========================
-# Load Website（6頁）
+# Load website
 # =========================
 def load_website():
     urls = [
@@ -72,7 +89,6 @@ def load_website():
 
     return data
 
-
 # =========================
 # Init RAG
 # =========================
@@ -87,35 +103,22 @@ def init_rag():
         chunks = []
         for tag, text in data.items():
             words = text.split()
-            for i in range(0, len(words), 150):
-                chunks.append((tag, " ".join(words[i:i+150])))
+
+            # 🔥 smaller chunks（更準）
+            for i in range(0, len(words), 80):
+                chunks.append((tag, " ".join(words[i:i+80])))
 
         print("✅ RAG ready!")
 
-
 # =========================
-# Routing（避免抓錯頁）
+# Semantic routing
 # =========================
-def route(q):
-    q = q.lower()
+def route(query):
+    q_emb = embed_model.encode([query])[0]
+    scores = np.dot(page_embs, q_emb)
 
-    if "name" in q or "who" in q or "誰" in q:
-        return ["profile"]
-
-    if "publication" in q or "發表" in q or "paper" in q:
-        return ["publication"]
-
-    if "work" in q or "experience" in q or "經歷" in q:
-        return ["teaching"]
-
-    if "award" in q or "獎" in q:
-        return ["award"]
-
-    if "hobby" in q or "興趣" in q or "愛好" in q:
-        return ["hobby"]
-
-    return ["profile", "publication"]
-
+    top_idx = np.argsort(scores)[-2:]
+    return [page_keys[i] for i in top_idx]
 
 # =========================
 # Retrieve
@@ -124,7 +127,6 @@ def retrieve(query, top_k=3):
     allowed = route(query)
 
     filtered = [c for c in chunks if c[0] in allowed]
-
     if not filtered:
         filtered = chunks
 
@@ -138,9 +140,8 @@ def retrieve(query, top_k=3):
 
     return [texts[i] for i in top_idx]
 
-
 # =========================
-# 🔥 清理 context（關鍵）
+# Clean context
 # =========================
 def clean_context(text):
     words = text.split()
@@ -155,40 +156,61 @@ def clean_context(text):
 
     return " ".join(cleaned[:300])
 
-
 # =========================
-# 🔥 強化 publication 抽取
+# 🔥 Publication extraction
 # =========================
 def focus_publication(context, question):
-    if "publication" in question.lower() or "發表" in question:
-        parts = context.split("20")
+    q = question.lower()
 
-        results = []
-        for p in parts:
-            if len(p.strip()) > 20:
-                results.append("20" + p.strip())
+    if "publication" in q or "發表" in q:
 
-        return " ".join(results[:3])
+        matches = re.findall(r"(20\d{2}[^.]+)", context)
+
+        # recent → 只抓 2024/2025
+        if "recent" in q:
+            matches = [m for m in matches if m.startswith("2024") or m.startswith("2025")]
+
+        unique = []
+        for m in matches:
+            if m not in unique:
+                unique.append(m)
+
+        return " ".join(unique[:3])
 
     return context
 
-
 # =========================
-# LLM（ChatGPT風格）
+# LLM
 # =========================
 def call_llm(context, question):
 
-    prompt = f"""
-You are a helpful assistant.
+    q = question.lower()
 
-Answer naturally like ChatGPT.
+    if "name" in q or "名字" in q:
+        task = "Give ONLY the person's name."
+    elif "who" in q or "是誰" in q:
+        task = "Describe who the person is in ONE short sentence."
+    elif "publication" in q or "發表" in q:
+        task = "List 2-3 key publications briefly."
+    elif "hobby" in q or "興趣" in q:
+        task = "Describe hobbies briefly."
+    elif "work" in q or "experience" in q or "經歷" in q:
+        task = "Summarize work experience in one sentence."
+    else:
+        task = "Answer briefly."
+
+    prompt = f"""
+You are a precise assistant.
+
+Task:
+{task}
 
 Rules:
-- Use 1–2 short sentences
-- Focus on key information only
-- Do NOT repeat words
-- Do NOT include irrelevant details
-- If unsure, say "I’m not sure"
+- VERY SHORT answer
+- No explanation
+- No repetition
+- No irrelevant text
+- If not found, say "Not sure"
 
 Context:
 {context}
@@ -202,22 +224,32 @@ Answer:
     try:
         res = llm(
             prompt,
-            max_new_tokens=80,
-            do_sample=True,
-            temperature=0.7
+            max_new_tokens=50,
+            do_sample=False
         )
-        return res[0]["generated_text"]
+
+        ans = res[0]["generated_text"].strip()
+
+        # 🔥 remove repetition
+        ans = re.sub(r"\b(\w+)( \1\b)+", r"\1", ans)
+
+        if len(ans) > 120:
+            ans = ans[:120]
+
+        if ans.count("PU YUN") > 3:
+            return "Not sure"
+
+        return ans
+
     except:
         return "Error"
-
 
 # =========================
 # API
 # =========================
 @app.route("/")
 def home():
-    return "RAG system running"
-
+    return "RAG running"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -232,7 +264,6 @@ def chat():
         docs = retrieve(q)
         context = " ".join(docs)
 
-        # 🔥 關鍵優化
         context = clean_context(context)
         context = focus_publication(context, q)
 
@@ -243,7 +274,6 @@ def chat():
     except Exception as e:
         print("ERROR:", e)
         return jsonify({"reply": "error"})
-
 
 # =========================
 # Run
