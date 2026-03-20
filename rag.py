@@ -7,192 +7,248 @@ Created on Fri Mar 20 00:29:02 2026
 
 # -*- coding: utf-8 -*-
 
-# -*- coding: utf-8 -*-
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
-from bs4 import BeautifulSoup
-# from huggingface_hub import InferenceClient
 import os
+from bs4 import BeautifulSoup
+from sentence_transformers import SentenceTransformer
+from transformers import pipeline
+import numpy as np
 
-os.environ.setdefault("HF_TOKEN", "")  # Set HF_TOKEN in your environment before running
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-
-# =========================
-# Flask
-# =========================
 app = Flask(__name__)
 CORS(app)
 
 # =========================
-# 🌐 抓網站內容
+# Embedding
+# =========================
+embed_model = SentenceTransformer(
+    "sentence-transformers/all-MiniLM-L6-v2",
+    device="cpu"
+)
+
+# =========================
+# LLM
+# =========================
+llm = pipeline(
+    "text2text-generation",
+    model="google/flan-t5-base",
+    device=-1
+)
+
+chunks = []
+
+
+# =========================
+# Load Website（6頁）
 # =========================
 def load_website():
     urls = [
-        "https://puyun321.github.io/",
-        "https://puyun321.github.io/Publication",
-        "https://puyun321.github.io/Personal_work",
-        "https://puyun321.github.io/Academic_Award",
-        "https://puyun321.github.io/Teaching_Experience",
-        "https://puyun321.github.io/My_Hobbies"
+        ("profile", "https://puyun321.github.io/"),
+        ("publication", "https://puyun321.github.io/Publication"),
+        ("work", "https://puyun321.github.io/Personal_work"),
+        ("award", "https://puyun321.github.io/Academic_Award"),
+        ("teaching", "https://puyun321.github.io/Teaching_Experience"),
+        ("hobby", "https://puyun321.github.io/My_Hobbies")
     ]
 
-    texts = []
+    data = {}
 
-    for url in urls:
+    for tag, url in urls:
         try:
             res = requests.get(url, timeout=5)
             soup = BeautifulSoup(res.text, "html.parser")
+
+            for t in soup(["script", "style"]):
+                t.extract()
+
             text = soup.get_text(separator=" ")
-            texts.append(text)
+            data[tag] = text
+
         except:
-            continue
+            data[tag] = ""
 
-    return texts
+    return data
 
-# =========================
-# ✂️ chunk
-# =========================
-def split_text(texts, chunk_size=200):
-    chunks = []
-    for text in texts:
-        words = text.split()
-        for i in range(0, len(words), chunk_size):
-            chunks.append(" ".join(words[i:i+chunk_size]))
-    return chunks
 
 # =========================
-# 🧠 簡單檢索
+# Init RAG
 # =========================
-def retrieve(query, chunks, top_k=3):
-    query_words = query.lower().split()
-    scored = []
-
-    for c in chunks:
-        score = sum(word in c.lower() for word in query_words)
-        if score > 0:
-            scored.append((score, c))
-
-    scored.sort(reverse=True)
-
-    if not scored:
-        return chunks[:top_k]
-
-    return [c for _, c in scored[:top_k]]
-
-# =========================
-# 🤖 LLM（最穩版本）
-# =========================
-def call_llm(prompt):
-    hf_token = os.getenv("HF_TOKEN")
-
-    if not hf_token:
-        return fallback(prompt)
-
-    try:
-        headers = {
-            "Authorization": f"Bearer {hf_token}"
-        }
-
-        payload = {
-            "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": 120,
-                "temperature": 0.7,
-                "return_full_text": False
-            }
-        }
-
-        response = requests.post(
-            "https://router.huggingface.co/hf-inference/models/microsoft/Phi-3-mini-4k-instruct",
-            headers=headers,
-            json=payload,
-            timeout=20
-        )
-
-        print("HF status:", response.status_code)
-        print("HF raw:", response.text[:200])
-
-        data = response.json()
-
-        # 正常回傳
-        if isinstance(data, list):
-            return data[0]["generated_text"]
-
-        # HF error
-        if "error" in data:
-            return fallback(prompt)
-
-        return str(data)
-
-    except Exception as e:
-        print("HF ERROR:", repr(e))
-        return fallback(prompt)
-
-# =========================
-# 🛟 fallback（保證有回答）
-# =========================
-def fallback(prompt):
-    # 抓資料部分
-    if "【資料】" in prompt:
-        context = prompt.split("【資料】")[1].split("【問題】")[0]
-        summary = " ".join(context.split()[:80])
-        return f"根據資料，{summary}..."
-
-    return "目前無法取得模型回應"
-
-# =========================
-# 🚀 Lazy Loading
-# =========================
-chunks = None
-
 def init_rag():
     global chunks
-    if chunks is None:
+
+    if not chunks:
         print("🔄 Loading RAG...")
-        texts = load_website()
-        chunks = split_text(texts)
+
+        data = load_website()
+
+        chunks = []
+        for tag, text in data.items():
+            words = text.split()
+            for i in range(0, len(words), 150):
+                chunks.append((tag, " ".join(words[i:i+150])))
+
         print("✅ RAG ready!")
+
+
+# =========================
+# Routing（避免抓錯頁）
+# =========================
+def route(q):
+    q = q.lower()
+
+    if "name" in q or "who" in q or "誰" in q:
+        return ["profile"]
+
+    if "publication" in q or "發表" in q or "paper" in q:
+        return ["publication"]
+
+    if "work" in q or "experience" in q or "經歷" in q:
+        return ["teaching"]
+
+    if "award" in q or "獎" in q:
+        return ["award"]
+
+    if "hobby" in q or "興趣" in q or "愛好" in q:
+        return ["hobby"]
+
+    return ["profile", "publication"]
+
+
+# =========================
+# Retrieve
+# =========================
+def retrieve(query, top_k=3):
+    allowed = route(query)
+
+    filtered = [c for c in chunks if c[0] in allowed]
+
+    if not filtered:
+        filtered = chunks
+
+    texts = [c[1] for c in filtered]
+
+    emb = embed_model.encode(texts)
+    q_emb = embed_model.encode([query])[0]
+
+    scores = np.dot(emb, q_emb)
+    top_idx = np.argsort(scores)[-top_k:][::-1]
+
+    return [texts[i] for i in top_idx]
+
+
+# =========================
+# 🔥 清理 context（關鍵）
+# =========================
+def clean_context(text):
+    words = text.split()
+
+    blacklist = [
+        "Home", "Profile", "Contact", "Email",
+        "Back", "More", "Details", "Support",
+        "ResearchGate", "Other", "Personal"
+    ]
+
+    cleaned = [w for w in words if w not in blacklist]
+
+    return " ".join(cleaned[:300])
+
+
+# =========================
+# 🔥 強化 publication 抽取
+# =========================
+def focus_publication(context, question):
+    if "publication" in question.lower() or "發表" in question:
+        parts = context.split("20")
+
+        results = []
+        for p in parts:
+            if len(p.strip()) > 20:
+                results.append("20" + p.strip())
+
+        return " ".join(results[:3])
+
+    return context
+
+
+# =========================
+# LLM（ChatGPT風格）
+# =========================
+def call_llm(context, question):
+
+    prompt = f"""
+You are a helpful assistant.
+
+Answer naturally like ChatGPT.
+
+Rules:
+- Use 1–2 short sentences
+- Focus on key information only
+- Do NOT repeat words
+- Do NOT include irrelevant details
+- If unsure, say "I’m not sure"
+
+Context:
+{context}
+
+Question:
+{question}
+
+Answer:
+"""
+
+    try:
+        res = llm(
+            prompt,
+            max_new_tokens=80,
+            do_sample=True,
+            temperature=0.7
+        )
+        return res[0]["generated_text"]
+    except:
+        return "Error"
+
 
 # =========================
 # API
 # =========================
-@app.route("/", methods=["GET"])
+@app.route("/")
 def home():
-    return jsonify({"status": "RAG server running"})
+    return "RAG system running"
+
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    init_rag()
+    try:
+        data = request.get_json()
+        q = data.get("message", "")
 
-    data = request.get_json()
-    user_msg = data.get("message", "")
+        print("Q:", q)
 
-    print("收到問題：", user_msg)
+        init_rag()
 
-    docs = retrieve(user_msg, chunks)
-    context = "\n".join(docs)
+        docs = retrieve(q)
+        context = " ".join(docs)
 
-    prompt = f"""
-你是一個專業AI助理，請自然回答。
+        # 🔥 關鍵優化
+        context = clean_context(context)
+        context = focus_publication(context, q)
 
-【資料】
-{context}
+        answer = call_llm(context, q)
 
-【問題】
-{user_msg}
+        return jsonify({"reply": answer})
 
-【回答】
-"""
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({"reply": "error"})
 
-    answer = call_llm(prompt)
-
-    return jsonify({"reply": answer})
 
 # =========================
-# Render / local
+# Run
 # =========================
 if __name__ == "__main__":
+    init_rag()
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
