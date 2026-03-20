@@ -5,22 +5,25 @@ Created on Fri Mar 20 00:29:02 2026
 @author: TKU
 """
 
+# -*- coding: utf-8 -*-
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
-import numpy as np
-import faiss
-from sentence_transformers import SentenceTransformer
 from huggingface_hub import InferenceClient
 import os
 
 os.environ.setdefault("HF_TOKEN", "")  # Set HF_TOKEN in your environment before running
+
+# =========================
+# Flask
+# =========================
 app = Flask(__name__)
 CORS(app)
 
 # =========================
-# 🔑 Hugging Face（官方SDK）
+# 🔑 Hugging Face（用環境變數）
 # =========================
 client = InferenceClient(
     model="mistralai/Mistral-7B-Instruct-v0.2",
@@ -65,24 +68,24 @@ def split_text(texts, chunk_size=200):
     return chunks
 
 # =========================
-# 🧠 真 embedding（升級重點）
+# 🧠 輕量 RAG（關鍵字檢索）
 # =========================
-embed_model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
+def retrieve(query, chunks, top_k=3):
+    query_words = query.lower().split()
+    scored = []
 
-def build_index(chunks):
-    embeddings = embed_model.encode(chunks)
-    dimension = embeddings.shape[1]
-    index = faiss.IndexFlatL2(dimension)
-    index.add(np.array(embeddings).astype("float32"))
-    return index, embeddings
+    for c in chunks:
+        score = sum(word in c.lower() for word in query_words)
+        if score > 0:
+            scored.append((score, c))
 
-# =========================
-# 🔍 檢索
-# =========================
-def retrieve(query, chunks, index):
-    q_emb = embed_model.encode([query])
-    D, I = index.search(np.array(q_emb).astype("float32"), k=3)
-    return [chunks[i] for i in I[0]]
+    scored.sort(reverse=True)
+
+    # fallback（避免抓不到）
+    if not scored:
+        return chunks[:top_k]
+
+    return [c for _, c in scored[:top_k]]
 
 # =========================
 # 🤖 LLM
@@ -100,20 +103,24 @@ def call_llm(prompt):
         return response.choices[0].message["content"]
 
     except Exception as e:
-        print("HF ERROR:", repr(e))   # ⭐ 用 repr 才看得到
+        print("HF ERROR:", repr(e))
         return f"❌ HF錯誤: {repr(e)}"
 
 # =========================
-# 🚀 初始化（只跑一次）
+# 🚀 Lazy loading（避免啟動爆記憶體）
 # =========================
-print("🔄 Loading RAG...")
-texts = load_website()
-chunks = split_text(texts)
-index, embeddings = build_index(chunks)
-print("✅ RAG ready!")
+chunks = None
+
+def init_rag():
+    global chunks
+    if chunks is None:
+        print("🔄 Loading RAG...")
+        texts = load_website()
+        chunks = split_text(texts)
+        print("✅ RAG ready!")
 
 # =========================
-# 💬 API
+# API
 # =========================
 @app.route("/", methods=["GET"])
 def home():
@@ -121,12 +128,14 @@ def home():
 
 @app.route("/chat", methods=["POST"])
 def chat():
+    init_rag()  # ⭐ 延遲初始化
+
     data = request.get_json()
     user_msg = data.get("message", "")
 
     print("收到問題：", user_msg)
 
-    docs = retrieve(user_msg, chunks, index)
+    docs = retrieve(user_msg, chunks)
     context = "\n".join(docs)
 
     prompt = f"""
@@ -151,9 +160,8 @@ def chat():
 
     return jsonify({"reply": answer})
 
-
 # =========================
-# 🔥 Render 啟動
+# Render 啟動（保險）
 # =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
