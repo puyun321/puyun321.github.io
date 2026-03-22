@@ -1,10 +1,8 @@
-flask==3.0.3
-flask-cors==4.0.1
-requests==2.32.3
-beautifulsoup4==4.12.3
-sentence-transformers==2.7.0
-transformers==4.41.2
-torch>=2.9.0
-numpy==1.26.4
-scikit-learn==1.4.2
+flask
+flask-cors
+requests
+beautifulsoup4
+transformers
+torch
+scikit-learn
 gunicorn
