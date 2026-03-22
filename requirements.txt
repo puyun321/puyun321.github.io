@@ -7,3 +7,4 @@ transformers==4.41.2
 torch>=2.9.0
 numpy==1.26.4
 scikit-learn==1.4.2
+gunicorn
