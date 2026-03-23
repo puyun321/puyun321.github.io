@@ -14,8 +14,10 @@ async function sendMessage() {
     chatBox.innerHTML += `<div id="${loadingId}"><b>Bot：</b>思考中...</div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // 上線用
-    const API_URL = "https://puyun321-github-io.onrender.com/chat";
+    // 🔥 自動切換 API（本地 / Render）
+    const API_URL = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+        ? "http://127.0.0.1:8000/chat"
+        : "https://puyun321-github-io.onrender.com/chat";
 
     try {
         const response = await fetch(API_URL, {
