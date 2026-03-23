@@ -10,24 +10,34 @@ import requests
 import os
 import re
 from bs4 import BeautifulSoup
-from transformers import pipeline
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from transformers import pipeline
+
+# 🔥 限制CPU threads（避免爆）
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["OMP_NUM_THREADS"] = "1"
 
 app = Flask(__name__)
 CORS(app)
 
 # =========================
-# 小 LLM
+# 🔥 Lazy Load LLM（關鍵）
 # =========================
-llm = pipeline(
-    "text-generation",
-    model="google/flan-t5-small",
-    device=-1
-)
+llm = None
+
+def get_llm():
+    global llm
+    if llm is None:
+        print("🔄 Loading LLM...")
+        llm = pipeline(
+            "text-generation",
+            model="t5-small",   # ⭐ 更省記憶體
+            device=-1
+        )
+    return llm
 
 # =========================
 # RAG storage
@@ -37,7 +47,7 @@ vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = None
 
 # =========================
-# 🔥 Query Routing（核心）
+# Routing
 # =========================
 def route_query(query):
     q = query.lower()
@@ -63,21 +73,17 @@ def route_query(query):
 # Clean HTML
 # =========================
 def extract_main_content(soup):
+    for tag in soup(["nav", "footer", "header"]):
+        tag.extract()
+
     main = soup.find("main")
     if main:
         return main.get_text(" ")
 
-    article = soup.find("article")
-    if article:
-        return article.get_text(" ")
-
-    for tag in soup(["nav", "footer", "header"]):
-        tag.extract()
-
     return soup.get_text(" ")
 
 # =========================
-# Load website（支援 routing）
+# Load website
 # =========================
 def load_website(urls):
     texts = []
@@ -108,8 +114,6 @@ def load_website(urls):
 def init_rag(query):
     global chunks, tfidf_matrix
 
-    print("🔄 Loading RAG...")
-
     urls = route_query(query)
 
     text = load_website(urls)
@@ -121,8 +125,6 @@ def init_rag(query):
         chunks.append(" ".join(words[i:i+80]))
 
     tfidf_matrix = vectorizer.fit_transform(chunks)
-
-    print("✅ RAG ready!")
 
 # =========================
 # Retrieval
@@ -142,8 +144,7 @@ def clean_context(text):
     blacklist = [
         "Home","Homepage","Profile","Contact","Email",
         "Back","More","Details","Support",
-        "ResearchGate","Other","Personal",
-        "Academic","Publications","Work"
+        "ResearchGate","Other","Personal"
     ]
 
     cleaned = [w for w in words if w not in blacklist]
@@ -152,7 +153,7 @@ def clean_context(text):
     return " ".join(cleaned[:100])
 
 # =========================
-# 🔥 Paper Extraction
+# Paper Extraction
 # =========================
 def extract_publications(context, question):
     q = question.lower()
@@ -174,66 +175,46 @@ def extract_publications(context, question):
     return None
 
 # =========================
-# LLM（只處理一般問題）
+# LLM（只用在一般問題）
 # =========================
 def call_llm(context, question):
 
     q = question.lower()
 
+    # 🔥 強制答案（避免亂）
     if "name" in q:
         return "Kow Pu Yun"
 
     if "who" in q:
         return "AI professor at Tamkang University"
 
-    prompt = f"""
-Answer briefly.
+    prompt = f"question: {question} context: {context[:120]} answer:"
 
-Context:
-{context[:150]}
+    try:
+        model = get_llm()
 
-Question:
-{question}
+        res = model(
+            prompt,
+            max_new_tokens=20,
+            do_sample=False
+        )
 
-Answer:
-"""
+        ans = res[0]["generated_text"].replace(prompt, "").strip()
 
-    # try:
-    #     res = llm(
-    #         prompt,
-    #         max_new_tokens=30,
-    #         do_sample=False
-    #     )
+        if len(ans) < 3:
+            return context[:60]
 
-    #     ans = res[0]["generated_text"].strip()
+        return ans
 
-    #     if len(ans) < 3:
-    #         return context[:60]
-
-    #     return ans
-
-    # except:
-    #     return context[:60]
-
-    res = llm(
-        prompt,
-        max_new_tokens=100,
-        do_sample=False
-    )
-
-    ans = res[0]["generated_text"].strip()
-
-    if len(ans) < 3:
+    except:
         return context[:60]
-
-    return ans
 
 # =========================
 # API
 # =========================
 @app.route("/")
 def home():
-    return "Final RAG running"
+    return "Stable RAG running"
 
 @app.route("/chat", methods=["POST"])
 def chat():
