@@ -21,11 +21,11 @@ app = Flask(__name__)
 CORS(app)
 
 # =========================
-# 小 LLM（輕量穩定）
+# 小 LLM
 # =========================
 llm = pipeline(
-    "text2text-generation",
-    model="t5-small",
+    "text-generation",
+    model="google/flan-t5-small",
     device=-1
 )
 
@@ -37,7 +37,30 @@ vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = None
 
 # =========================
-# Clean HTML（去menu）
+# 🔥 Query Routing（核心）
+# =========================
+def route_query(query):
+    q = query.lower()
+
+    if "paper" in q or "publication" in q:
+        return ["https://puyun321.github.io/Publication"]
+
+    if "work" in q or "project" in q:
+        return ["https://puyun321.github.io/Personal_work"]
+
+    if "award" in q or "prize" in q:
+        return ["https://puyun321.github.io/Academic_Award"]
+
+    if "teaching" in q or "experience" in q:
+        return ["https://puyun321.github.io/Teaching_Experience"]
+
+    if "hobby" in q or "interest" in q:
+        return ["https://puyun321.github.io/My_Hobbies"]
+
+    return ["https://puyun321.github.io/"]
+
+# =========================
+# Clean HTML
 # =========================
 def extract_main_content(soup):
     main = soup.find("main")
@@ -54,18 +77,9 @@ def extract_main_content(soup):
     return soup.get_text(" ")
 
 # =========================
-# Load website
+# Load website（支援 routing）
 # =========================
-def load_website():
-    urls = [
-        "https://puyun321.github.io/",
-        "https://puyun321.github.io/Publication",
-        "https://puyun321.github.io/Personal_work",
-        "https://puyun321.github.io/Academic_Award",
-        "https://puyun321.github.io/Teaching_Experience",
-        "https://puyun321.github.io/My_Hobbies"
-    ]
-
+def load_website(urls):
     texts = []
 
     for url in urls:
@@ -79,7 +93,7 @@ def load_website():
             text = extract_main_content(soup)
 
             words = text.split()
-            words = [w for w in words if "@" not in w]  # remove email
+            words = [w for w in words if "@" not in w]
 
             texts.append(" ".join(words))
 
@@ -89,26 +103,29 @@ def load_website():
     return " ".join(texts)
 
 # =========================
-# Init RAG
+# Init RAG（動態）
 # =========================
-def init_rag():
+def init_rag(query):
     global chunks, tfidf_matrix
 
-    if not chunks:
-        print("🔄 Loading RAG...")
+    print("🔄 Loading RAG...")
 
-        text = load_website()
-        words = text.split()
+    urls = route_query(query)
 
-        for i in range(0, len(words), 80):
-            chunks.append(" ".join(words[i:i+80]))
+    text = load_website(urls)
+    words = text.split()
 
-        tfidf_matrix = vectorizer.fit_transform(chunks)
+    chunks = []
 
-        print("✅ RAG ready!")
+    for i in range(0, len(words), 80):
+        chunks.append(" ".join(words[i:i+80]))
+
+    tfidf_matrix = vectorizer.fit_transform(chunks)
+
+    print("✅ RAG ready!")
 
 # =========================
-# Retrieval（語義）
+# Retrieval
 # =========================
 def retrieve(query, top_k=3):
     query_vec = vectorizer.transform([query.lower()])
@@ -135,12 +152,12 @@ def clean_context(text):
     return " ".join(cleaned[:100])
 
 # =========================
-# 🔥 Paper Extraction（重點）
+# 🔥 Paper Extraction
 # =========================
 def extract_publications(context, question):
     q = question.lower()
 
-    if "paper" in q or "publication" in q or "發表" in q:
+    if "paper" in q or "publication" in q:
 
         matches = re.findall(r"(20\d{2}[^.;\n]+)", context)
 
@@ -148,9 +165,6 @@ def extract_publications(context, question):
         for m in matches:
             if m not in unique:
                 unique.append(m.strip())
-
-        if "recent" in q:
-            unique = [m for m in unique if any(y in m for y in ["2023","2024","2025"])]
 
         if len(unique) == 0:
             return None
@@ -166,43 +180,60 @@ def call_llm(context, question):
 
     q = question.lower()
 
-    # 🔥 強制正確答案（提升穩定）
     if "name" in q:
         return "Kow Pu Yun"
 
-    if "who" in q or "是誰" in q:
+    if "who" in q:
         return "AI professor at Tamkang University"
 
     prompt = f"""
-question: {question}
-context: {context[:150]}
+Answer briefly.
 
-answer:
+Context:
+{context[:150]}
+
+Question:
+{question}
+
+Answer:
 """
 
-    try:
-        res = llm(
-            prompt,
-            max_new_tokens=25,
-            do_sample=False
-        )
+    # try:
+    #     res = llm(
+    #         prompt,
+    #         max_new_tokens=30,
+    #         do_sample=False
+    #     )
 
-        ans = res[0]["generated_text"].strip()
+    #     ans = res[0]["generated_text"].strip()
 
-        if len(ans) < 3:
-            return context[:60]
+    #     if len(ans) < 3:
+    #         return context[:60]
 
-        return ans
+    #     return ans
 
-    except:
+    # except:
+    #     return context[:60]
+
+    res = llm(
+        prompt,
+        max_new_tokens=100,
+        do_sample=False
+    )
+
+    ans = res[0]["generated_text"].strip()
+
+    if len(ans) < 3:
         return context[:60]
+
+    return ans
 
 # =========================
 # API
 # =========================
 @app.route("/")
 def home():
-    return "Clean Hybrid RAG running"
+    return "Final RAG running"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -212,16 +243,15 @@ def chat():
 
         print("Q:", q)
 
-        init_rag()
+        init_rag(q)
 
         docs = retrieve(q)
         context = clean_context(" ".join(docs))
 
-        # 🔥 Hybrid pipeline
         papers = extract_publications(context, q)
 
         if papers is not None:
-            answer = "; ".join(papers)   # ⭐ 不用LLM
+            answer = "; ".join(papers)
         else:
             answer = call_llm(context, q)
 
@@ -235,6 +265,5 @@ def chat():
 # Run
 # =========================
 if __name__ == "__main__":
-    init_rag()
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
