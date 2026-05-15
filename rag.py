@@ -127,11 +127,8 @@ def chat():
         return jsonify({"reply": answer})
 
     except Exception as e:
-        if "api_key" in str(e).lower() or "authentication" in str(e).lower():
-            print("ERROR: Invalid GROQ_API_KEY")
-            return jsonify({"reply": "API configuration error. Please contact the site owner."})
-        print(f"ERROR: {e}")
-        return jsonify({"reply": "Sorry, an error occurred. Please try again."})
+        print(f"ERROR: {type(e).__name__}: {e}")
+        return jsonify({"reply": f"Error: {type(e).__name__}: {str(e)[:200]}"})
 
 
 if __name__ == "__main__":
