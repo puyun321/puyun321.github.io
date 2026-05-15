@@ -2,9 +2,7 @@ flask
 flask-cors
 requests
 beautifulsoup4
-transformers
-torch
 scikit-learn
 numpy
-sentencepiece
 gunicorn
+groq
