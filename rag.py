@@ -17,7 +17,10 @@ groq_client = None
 def get_groq_client():
     global groq_client
     if groq_client is None:
-        groq_client = Groq()
+        api_key = os.environ.get("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY environment variable is not set")
+        groq_client = Groq(api_key=api_key)
     return groq_client
 
 chunks = []
