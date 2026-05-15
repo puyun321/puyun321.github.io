@@ -12,7 +12,13 @@ from groq import Groq
 app = Flask(__name__)
 CORS(app)
 
-groq_client = Groq()  # reads GROQ_API_KEY from env
+groq_client = None
+
+def get_groq_client():
+    global groq_client
+    if groq_client is None:
+        groq_client = Groq()
+    return groq_client
 
 chunks = []
 vectorizer = TfidfVectorizer(stop_words="english")
@@ -74,7 +80,7 @@ def retrieve(query, top_k=3):
 
 
 def call_llm(query, context):
-    response = groq_client.chat.completions.create(
+    response = get_groq_client().chat.completions.create(
         model="llama-3.3-70b-versatile",
         max_tokens=300,
         messages=[
