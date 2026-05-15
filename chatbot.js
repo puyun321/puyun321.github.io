@@ -1,73 +1,68 @@
+function toggleChat() {
+    const container = document.getElementById("chat-container");
+    const btn = document.getElementById("chat-toggle-btn");
+    container.classList.toggle("hidden");
+    btn.textContent = container.classList.contains("hidden") ? "💬" : "✕";
+}
+
+function appendMsg(text, type) {
+    const chatBox = document.getElementById("chat-box");
+    const div = document.createElement("div");
+    div.className = type;
+    div.textContent = text;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    return div;
+}
+
 async function sendMessage() {
     const input = document.getElementById("user-input");
-    const chatBox = document.getElementById("chat-box");
-
     const userText = input.value.trim();
     if (!userText) return;
 
-    // 顯示使用者訊息
-    chatBox.innerHTML += `<div><b>你：</b>${userText}</div>`;
+    appendMsg(userText, "msg-user");
     input.value = "";
 
-    // loading
-    const loadingId = "loading-" + Date.now();
-    chatBox.innerHTML += `<div id="${loadingId}"><b>Bot：</b>思考中...</div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
+    const loading = appendMsg("思考中...", "msg-bot msg-loading");
 
-    // 上線用
     const API_URL = "https://puyun321-github-io.onrender.com/chat";
 
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: userText })
         });
 
-        // 🔥 有些後端會回文字不是JSON
         const text = await response.text();
-        console.log("Raw API回傳：", text);
-
         let data;
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-            data = { reply: text };
-        }
+        try { data = JSON.parse(text); } catch (e) { data = { reply: text }; }
 
-        document.getElementById(loadingId).remove();
+        loading.remove();
 
-        // 🔥 多種格式容錯
         let reply = "（無回應）";
-
         if (data.reply && data.reply.trim() !== "") {
             reply = data.reply;
         } else if (data.response && data.response.trim() !== "") {
             reply = data.response;
-        } else if (typeof data === "string") {
+        } else if (typeof data === "string" && data.trim() !== "") {
             reply = data;
         }
 
-        // 🔴 避免顯示錯誤訊息
-        if (reply.includes("HF錯誤") || reply.includes("ERROR")) {
-            reply = "目前模型服務不穩定，已改用備用回答";
-        }
-
-        chatBox.innerHTML += `<div><b>Bot：</b>${reply}</div>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
+        appendMsg(reply, "msg-bot");
 
     } catch (error) {
-        document.getElementById(loadingId).remove();
-
-        console.error("❌ fetch錯誤：", error);
-
-        chatBox.innerHTML += `
-            <div style="color:red;">
-                <b>Bot：</b>連線失敗<br>
-                <small>請確認後端 API 是否啟動（Render 或本地）</small>
-            </div>
-        `;
+        loading.remove();
+        const div = appendMsg("連線失敗，請確認 API 是否啟動。", "msg-bot");
+        div.style.color = "#ef4444";
     }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const input = document.getElementById("user-input");
+    if (input) {
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendMessage();
+        });
+    }
+});
