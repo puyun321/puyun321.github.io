@@ -1,266 +1,325 @@
+/* =============================================================
+   KOW PU YUN — personal site
+   Redesigned stylesheet (shared across all pages)
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --bg-1: #0f172a;
+    --bg-2: #1e293b;
+    --accent: #6366f1;
+    --accent-2: #14b8a6;
+    --accent-soft: rgba(99, 102, 241, 0.12);
+    --ink: #1e293b;
+    --ink-soft: #475569;
+    --card: rgba(255, 255, 255, 0.72);
+    --card-border: rgba(255, 255, 255, 0.55);
+    --shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.35);
+    --radius: 16px;
+    --font: 'Inter', 'Segoe UI', 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Noto Sans TC', Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+@keyframes drift {
+    0%   { background-position: 0% 50%, 100% 50%, 50% 0%; }
+    50%  { background-position: 100% 50%, 0% 50%, 50% 100%; }
+    100% { background-position: 0% 50%, 100% 50%, 50% 0%; }
+}
+
+@keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 body {
-    font-family: 'Arial', sans-serif;
-    background: url('AI_SDGs-new.png') no-repeat center center fixed;
-    background-size: 100% 100%;
-    color: #333;
-    line-height: 1.6;
+    font-family: var(--font);
+    color: var(--ink);
+    line-height: 1.65;
     margin: 0;
-    padding: 20px;
+    padding: 40px 20px 80px;
     display: flex;
     justify-content: center;
     min-height: 100vh;
+    background-color: var(--bg-1);
+    background-image:
+        radial-gradient(60% 60% at 15% 20%, rgba(99, 102, 241, 0.35) 0%, transparent 60%),
+        radial-gradient(55% 55% at 85% 25%, rgba(20, 184, 166, 0.30) 0%, transparent 60%),
+        radial-gradient(70% 70% at 50% 100%, rgba(56, 189, 248, 0.25) 0%, transparent 60%);
+    background-size: 200% 200%, 200% 200%, 200% 200%;
+    background-attachment: fixed;
+    animation: drift 24s ease-in-out infinite;
 }
 
 .content {
-    max-width: 1000px;
+    max-width: 1040px;
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    animation: rise 0.6s ease both;
 }
 
-h1, h2, h3 {
-    color: #2c3e50;
-    margin-bottom: 20px;
+/* ---------- headings ---------- */
+h1, h2, h3, h4 {
+    color: var(--ink);
+    margin: 0 0 16px;
+    letter-spacing: -0.01em;
 }
 
-h1 {
-    font-size: 2.5em;
-    text-align: left;
-}
+h1 { font-size: 2.4em; }
 
 h2 {
-    border-bottom: 2px solid #2c3e50;
-    padding-bottom: 10px;
+    font-size: 1.9em;
+    font-weight: 800;
+    color: #fff;
+    padding: 4px 4px 16px;
+    margin-bottom: 24px;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.25);
+    text-shadow: 0 2px 12px rgba(15, 23, 42, 0.45);
+}
+
+h3 {
+    font-size: 1.25em;
+    font-weight: 700;
+    position: relative;
+    padding-left: 14px;
+}
+h3::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0.15em;
+    height: 1em;
+    width: 5px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-2));
+}
+
+h4 {
+    font-size: 1.02em;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-top: 18px;
 }
 
 .small-text {
-    font-size: 0.5em;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.85;
     margin-left: 10px;
 }
 
-.profile-info-container {
-    display: flex;
-    align-items: left;
-    flex-wrap: wrap; /* Allows content to wrap */
-}
-
-img.profile {
-    width: 50%;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    margin-right: 20px;
-}
-
-.fit {
-    height: auto;
-    max-width: 100%
-}
-
-.personal-info-container {
-    width: 45%; /* Adjust width to fit next to image */
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: column;
-}
-
-img.icon {
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
-    margin-left: 10px;
-}
-
-img.icon2 {
-    width: 60px;
-    height: 20px;
-    vertical-align: middle;
-    margin-left: 10px;
-}
-
+/* ---------- layout ---------- */
 .profile-container {
     display: flex;
     flex-wrap: wrap;
+    gap: 24px;
     margin-bottom: 20px;
     width: 100%;
     align-items: flex-start;
 }
 
-.info-text2 {
-    flex: 4;
-    margin-right: 20px;
-
-}
-
-.info-text {
-    flex: 1;
-    margin-right: 20px;
-
-}
+.info-text2 { flex: 4 1 420px; }
+.info-text  { flex: 1 1 260px; }
 
 .info-box, .info-box2 {
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 20px;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 26px 28px;
     margin-bottom: 20px;
-    background-color: rgba(255, 255, 255, 0.5);
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    background: var(--card);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: var(--shadow);
 }
 
-/* Media Queries for smaller screens */
-@media (max-width: 1024px) {
-    img.profile {
-        width: 50%; /* Increase width to 60% for medium screens */
-	height: auto;
-    }
-   .personal-info-container {
-    	width: 45%; /* Adjust width to fit next to image */
-    	display: flex;
-    	flex-wrap: wrap;
-    	flex-direction: column;
-    }
+.profile-info-container {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 22px;
 }
 
-@media (max-width: 768px) {
-    img.profile {
-        width: 70%; /* Increase width to 70% for smaller screens */
-	height: auto;
-        margin-right: 0;
-        margin-bottom: 20px; /* Add space below image */
-    }
-   .personal-info-container {
-    	width: 100%; /* Adjust width to fit next to image */
-    	display: flex;
-    	flex-wrap: wrap;
-    	flex-direction: column;
-    }
+img.profile {
+    width: 44%;
+    min-width: 220px;
+    height: auto;
+    border-radius: 14px;
+    box-shadow: 0 12px 28px -10px rgba(15, 23, 42, 0.45);
 }
 
-@media (max-width: 480px) {
-    img.profile {
-        width: 80%; /* Increase width to 70% for smaller screens */
-	height: auto;
-        margin-right: 0;
-        margin-bottom: 20px; /* Add space below image */
-    }
-   .personal-info-container {
-    	width: 100%; /* Adjust width to fit next to image */
-    	display: flex;
-    	flex-wrap: wrap;
-    	flex-direction: column;
-    }
+.fit { height: auto; max-width: 100%; }
+
+.personal-info-container {
+    flex: 1 1 260px;
+    display: flex;
+    flex-direction: column;
 }
 
-.nav-links {
-    flex: 1;
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
-}
-
-.nav-links a {
-    display: block;
-    margin-bottom: 5px;
-}
-
-ul {
-    list-style: none;
-    padding: 0;
-}
+/* ---------- lists ---------- */
+ul { list-style: none; padding: 0; margin: 0 0 12px; }
 
 ul li {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
 
+.info-box2 ul li:hover,
+.info-box ul li:hover {
+    background: var(--accent-soft);
+    border-color: rgba(99, 102, 241, 0.25);
+    transform: translateX(4px);
+}
+
+/* plain-text list items (no link) shouldn't look clickable */
+.personal-info-container ul li,
+.info-box2 > ul > li:not(:has(a)) {
+    padding: 4px 0;
+    border: 0;
+}
+.personal-info-container ul li:hover { background: none; transform: none; }
+
+/* ---------- links ---------- */
 a {
     text-decoration: none;
-    color: #2980b9;
-    font-weight: bold;
+    color: var(--accent);
+    font-weight: 600;
+    transition: color 0.15s ease;
 }
+a:hover { color: var(--accent-2); }
 
-a:hover {
-    color: #3498db;
+ul li a {
+    display: inline-block;
+    background-image: linear-gradient(var(--accent-2), var(--accent-2));
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.25s ease, color 0.15s ease;
 }
+ul li a:hover { background-size: 100% 2px; }
 
-p {
-    margin-bottom: 10px;
+p { margin: 0 0 12px; color: var(--ink-soft); }
+
+/* ---------- header contact icons ---------- */
+.contact {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
 }
+.contact img { vertical-align: middle; }
+.contact a { margin-left: 12px; display: inline-flex; }
 
-.contact img {
+img.icon, img.icon2 {
+    height: 22px;
     vertical-align: middle;
-}
-
-.contact a {
     margin-left: 10px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px -4px rgba(15, 23, 42, 0.4);
+    transition: transform 0.18s ease;
 }
+img.icon  { width: 22px; }
+img.icon2 { width: auto; }
+.contact a:hover img { transform: translateY(-2px); }
 
-.search-container {
-    margin-bottom: 20px;
-}
+/* ---------- search ---------- */
+.search-container { margin-bottom: 22px; }
 
 #search-input {
     width: 100%;
-    padding: 10px;
-    margin-top: 0px;
-    font-size: 16px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    outline: none;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+#search-input::placeholder { color: #94a3b8; }
+#search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow);
 }
 
-/* visitor count bar*/
+/* ---------- "Paper List" heading sitting inside <ul> ---------- */
+.info-box2 ul h3 { margin: 4px 0 16px; }
+
+/* ---------- visitor count bar ---------- */
 #visitor-counts {
-    border: 1px solid #ccc;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.5);
     display: flex;
-    flex-wrap: wrap; /* This allows the items to wrap to the next line */
+    flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 10px; /* Adds some space between items */
-    margin: 20px 0;
+    gap: 12px;
+    margin: 18px 0;
 }
 
-#國旗
-.visitor-count-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
+.visitor-count-item { display: flex; align-items: center; margin-bottom: 10px; }
 
-.fi {
-    margin-right: 10px;
-    width: 24px; /* 調整國旗大小 */
-    height: 18px;
-    border: 1px solid #ddd; /* 可選：添加邊框 */
-}
+.fi { margin-right: 10px; width: 24px; height: 18px; border: 1px solid #ddd; }
 
 .country-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 100px; /* Adjust the minimum width as needed */
-    flex-grow: 1; /* Allows the containers to grow and wrap */
+    min-width: 100px;
+    flex-grow: 1;
 }
 
-.flag {
-    width: 24px;
-    height: 16px;
-    margin-bottom: 8px; /* Space between the flag and the country name */
-}
+.flag { width: 24px; height: 16px; margin-bottom: 8px; }
 
 .bar {
     height: 20px;
-    background-color: #4CAF50;
-    margin: 0px 0;
-    width: 100%; /* Set the bar width to 100% of the container */
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 6px;
+    width: 100%;
 }
 
-.count-label {
-    font-weight: bold;
-    text-align: center;
+.count-label { font-weight: 700; text-align: center; color: var(--ink); }
+
+/* ---------- legacy helpers kept for compatibility ---------- */
+.nav-links {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: var(--shadow);
+}
+.nav-links a { display: block; margin-bottom: 6px; }
+
+.profile-info-container.legacy { display: flex; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 900px) {
+    body { padding: 24px 14px 60px; }
+    h2 { font-size: 1.55em; }
+    .info-box, .info-box2 { padding: 22px 20px; }
+    img.profile { width: 100%; }
+}
+
+@media (max-width: 560px) {
+    body { padding: 18px 10px 50px; }
+    h2 { font-size: 1.35em; }
+    .info-box, .info-box2 { padding: 18px 16px; }
+    ul li { padding: 9px 12px; }
 }
