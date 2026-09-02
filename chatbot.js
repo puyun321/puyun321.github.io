@@ -61,7 +61,13 @@ function renderMarkdown(text) {
     const lines = html.split("\n");
     let out = "";
     let inList = false;
-    for (const ln of lines) {
+    for (let ln of lines) {
+        // markdown table fallback: drop separator rows, flatten cell rows
+        if (/^\s*\|?\s*:?-{2,}.*\|/.test(ln)) continue;
+        if (ln.indexOf("|") !== -1 && /\|.*\|/.test(ln)) {
+            ln = ln.replace(/^\s*\|/, "").replace(/\|\s*$/, "")
+                   .split("|").map((c) => c.trim()).filter(Boolean).join(" — ");
+        }
         const m = ln.match(/^\s*(?:[-*•]|\d+\.)\s+(.*)$/);
         if (m) {
             if (!inList) { out += "<ul>"; inList = true; }
