@@ -28,19 +28,58 @@ vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = None
 
 
+PUB     = ("publication", "https://puyun321.github.io/Publication")
+WORK    = ("work", "https://puyun321.github.io/Personal_work")
+AWARD   = ("award", "https://puyun321.github.io/Academic_Award")
+TEACH   = ("teaching", "https://puyun321.github.io/Teaching_Experience")
+HOBBY   = ("hobby", "https://puyun321.github.io/My_Hobbies")
+PROFILE = ("profile", "https://puyun321.github.io/")
+
+# vague / opinion / overview questions — pull the substantive pages so the
+# model has enough material to compare and give a thoughtful answer
+BROAD_WORDS = [
+    "interesting", "interest", "best", "favourite", "favorite", "impressive",
+    "cool", "recommend", "highlight", "novel", "innovative", "proud", "most ",
+    "compare", "difference", "overview", "summary", "summarise", "summarize",
+    "tell me about", "who is", "background", "strength", "expertise", "focus",
+    "why ", "opinion", "think", "厲害", "有趣", "推薦", "比較", "介紹",
+]
+
+
 def route_query(query):
     q = query.lower()
-    if any(w in q for w in ["paper", "publication", "research", "journal", "article", "study"]):
-        return [("publication", "https://puyun321.github.io/Publication")]
-    if any(w in q for w in ["work", "project", "application", "system", "develop"]):
-        return [("work", "https://puyun321.github.io/Personal_work")]
-    if any(w in q for w in ["award", "prize", "honor", "scholarship", "achievem"]):
-        return [("award", "https://puyun321.github.io/Academic_Award")]
-    if any(w in q for w in ["teach", "experience", "career", "job", "position", "professor"]):
-        return [("teaching", "https://puyun321.github.io/Teaching_Experience")]
-    if any(w in q for w in ["hobby", "interest", "travel", "leisure", "fun"]):
-        return [("hobby", "https://puyun321.github.io/My_Hobbies")]
-    return [("profile", "https://puyun321.github.io/")]
+    pages = []
+
+    def add(*items):
+        for it in items:
+            if it not in pages:
+                pages.append(it)
+
+    if any(w in q for w in ["paper", "publication", "research", "journal",
+                            "article", "study", "model", "forecast", "論文", "研究"]):
+        add(PUB)
+    if any(w in q for w in ["work", "project", "application", "system",
+                            "develop", "code", "github", "專案", "作品"]):
+        add(WORK)
+        # "work" is ambiguous (projects vs. employment) — include career page too
+        if any(w in q for w in ["work", "now", "current", "where", "employ", "job"]):
+            add(TEACH)
+    if any(w in q for w in ["award", "prize", "honor", "scholarship",
+                            "achievem", "recogni", "獎"]):
+        add(AWARD)
+    if any(w in q for w in ["teach", "experience", "career", "job", "position",
+                            "professor", "lecturer", "employ", "工作", "經歷"]):
+        add(TEACH)
+    if any(w in q for w in ["hobby", "travel", "leisure", "fun", "興趣", "旅遊"]):
+        add(HOBBY)
+
+    if any(w in q for w in BROAD_WORDS):
+        add(PUB, WORK, AWARD, PROFILE)
+
+    if not pages:
+        add(PROFILE, PUB)
+
+    return pages
 
 
 def load_pages(url_list):
@@ -73,7 +112,7 @@ def build_rag(query):
         tfidf_matrix = vectorizer.fit_transform([c[1] for c in chunks])
 
 
-def retrieve(query, top_k=3):
+def retrieve(query, top_k=6):
     if tfidf_matrix is None or not chunks:
         return []
     query_vec = vectorizer.transform([query])
@@ -100,22 +139,43 @@ def get_models():
     return DEFAULT_MODELS
 
 
-def call_llm(query, context):
-    messages = [
-        {
-            "role": "system",
-            "content": (
-                "You are a helpful assistant for Kow Pu Yun's personal portfolio website. "
-                "Answer questions about Kow Pu Yun based ONLY on the provided context. "
-                "Be concise (2-4 sentences max). "
-                "If the context doesn't contain the answer, say so briefly."
-            )
-        },
-        {
-            "role": "user",
-            "content": f"Context:\n{context}\n\nQuestion: {query}"
-        }
-    ]
+SYSTEM_PROMPT = (
+    "You are Pu Yun's friendly AI guide on his personal portfolio website. "
+    "Pu Yun (Kow Pu Yun / 邱普運) is a researcher in machine learning, deep "
+    "learning, water resources, and environmental science.\n\n"
+    "How to answer:\n"
+    "- Ground answers in the provided context (publications, projects, awards, "
+    "background). Prefer specifics: paper titles, methods, years.\n"
+    "- You may go beyond a literal lookup: compare his projects, explain why a "
+    "piece of research is novel or interesting, draw out themes across his work, "
+    "and make reasonable inferences from the context.\n"
+    "- If asked for an opinion (\"which research is most interesting?\", \"what is "
+    "he best at?\"), give a thoughtful, engaging answer and briefly say why, "
+    "based on the context.\n"
+    "- If the context genuinely lacks the answer, say so in one sentence, then "
+    "share what you do know or suggest a related question.\n"
+    "- Warm, conversational tone. Usually 2-6 sentences; use a short bullet list "
+    "when comparing several items. End by inviting a follow-up when it fits.\n"
+    "- Reply in the same language the visitor used (English or Traditional "
+    "Chinese).\n"
+    "- For questions unrelated to Pu Yun, answer briefly if harmless, then gently "
+    "steer back to his work."
+)
+
+
+def call_llm(query, context, history=None):
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+
+    for turn in (history or [])[-6:]:
+        role = turn.get("role")
+        content = (turn.get("content") or "").strip()
+        if role in ("user", "assistant") and content:
+            messages.append({"role": role, "content": content[:1500]})
+
+    messages.append({
+        "role": "user",
+        "content": f"Context about Kow Pu Yun:\n{context}\n\nVisitor's question: {query}"
+    })
 
     client = get_groq_client()
     last_error = None
@@ -123,7 +183,8 @@ def call_llm(query, context):
         try:
             response = client.chat.completions.create(
                 model=model,
-                max_tokens=300,
+                max_tokens=500,
+                temperature=0.6,
                 messages=messages,
             )
             return response.choices[0].message.content
@@ -141,8 +202,9 @@ def home():
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
-        data = request.get_json()
-        query = data.get("message", "").strip()
+        data = request.get_json(force=True, silent=True) or {}
+        query = (data.get("message") or "").strip()
+        history = data.get("history") or []
 
         if not query:
             return jsonify({"reply": "Please enter a question."})
@@ -151,9 +213,9 @@ def chat():
 
         build_rag(query)
         docs = retrieve(query)
-        context = " ".join(docs)[:2000]
+        context = " ".join(docs)[:3500]
 
-        answer = call_llm(query, context)
+        answer = call_llm(query, context, history)
 
         return jsonify({"reply": answer})
 

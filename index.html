@@ -223,6 +223,35 @@
 }
 #send-btn:hover { transform: scale(1.08); }
 #send-btn svg { width: 18px; height: 18px; fill: white; }
+
+/* starter question chips */
+.msg-suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-self: flex-start;
+    max-width: 92%;
+}
+.suggestion-chip {
+    text-align: left;
+    background: #eef2ff;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.suggestion-chip:hover { background: #e0e7ff; }
+
+/* light markdown inside bot replies */
+.msg-bot p { margin: 0 0 6px; }
+.msg-bot p:last-child { margin-bottom: 0; }
+.msg-bot ul { margin: 6px 0; padding-left: 18px; }
+.msg-bot li { margin: 2px 0; }
+.msg-bot strong { font-weight: 700; }
 </style>
 
 <!-- 浮動按鈕 -->
