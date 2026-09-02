@@ -23,9 +23,9 @@
 * { box-sizing: border-box; }
 
 @keyframes drift {
-    0%   { background-position: 0% 50%, 100% 50%, 50% 0%; }
-    50%  { background-position: 100% 50%, 0% 50%, 50% 100%; }
-    100% { background-position: 0% 50%, 100% 50%, 50% 0%; }
+    0%   { background-position: 0% 50%, 100% 50%, center center; }
+    50%  { background-position: 100% 50%, 0% 50%, center center; }
+    100% { background-position: 0% 50%, 100% 50%, center center; }
 }
 
 @keyframes rise {
@@ -44,11 +44,13 @@ body {
     min-height: 100vh;
     background-color: var(--bg-1);
     background-image:
-        radial-gradient(60% 60% at 15% 20%, rgba(99, 102, 241, 0.35) 0%, transparent 60%),
-        radial-gradient(55% 55% at 85% 25%, rgba(20, 184, 166, 0.30) 0%, transparent 60%),
-        radial-gradient(70% 70% at 50% 100%, rgba(56, 189, 248, 0.25) 0%, transparent 60%);
-    background-size: 200% 200%, 200% 200%, 200% 200%;
-    background-attachment: fixed;
+        radial-gradient(60% 60% at 15% 20%, rgba(99, 102, 241, 0.18) 0%, transparent 60%),
+        radial-gradient(55% 55% at 85% 25%, rgba(20, 184, 166, 0.16) 0%, transparent 60%),
+        url('AI_SDGs-new.png');
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-position: center, center, center center;
+    background-size: 200% 200%, 200% 200%, 100% 100%;
+    background-attachment: fixed, fixed, fixed;
     animation: drift 24s ease-in-out infinite;
 }
 
