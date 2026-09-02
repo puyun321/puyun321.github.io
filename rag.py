@@ -24,6 +24,7 @@ def get_groq_client():
     return groq_client
 
 chunks = []
+page_full = []          # [(tag, full_text)] for the pages routed to this query
 vectorizer = TfidfVectorizer(stop_words="english")
 tfidf_matrix = None
 
@@ -100,9 +101,10 @@ def load_pages(url_list):
 
 
 def build_rag(query):
-    global chunks, tfidf_matrix
+    global chunks, tfidf_matrix, page_full
     urls = route_query(query)
     page_texts = load_pages(urls)
+    page_full = page_texts
     chunks = []
     for tag, text in page_texts:
         words = text.split()
@@ -110,6 +112,7 @@ def build_rag(query):
             chunks.append((tag, " ".join(words[i:i + 80])))
     if chunks:
         tfidf_matrix = vectorizer.fit_transform([c[1] for c in chunks])
+    return len(urls)
 
 
 def retrieve(query, top_k=6):
@@ -151,7 +154,9 @@ SYSTEM_PROMPT = (
     "and make reasonable inferences from the context.\n"
     "- If asked for an opinion (\"which research is most interesting?\", \"what is "
     "he best at?\"), give a thoughtful, engaging answer and briefly say why, "
-    "based on the context.\n"
+    "based on the context. When the context lists several papers or projects, "
+    "pick one or two and make the case for them — do not claim you lack "
+    "information when a list is clearly present.\n"
     "- If the context genuinely lacks the answer, say so in one sentence, then "
     "share what you do know or suggest a related question.\n"
     "- Warm, conversational tone. Usually 2-6 sentences; use a short bullet list "
@@ -211,9 +216,16 @@ def chat():
 
         print(f"Query: {query}")
 
-        build_rag(query)
-        docs = retrieve(query)
-        context = " ".join(docs)[:3500]
+        n_pages = build_rag(query)
+        if n_pages >= 3:
+            # broad / opinion question — give the model the whole set of routed
+            # pages so it can compare across papers, projects and awards
+            context = "\n\n".join(
+                f"[{tag}]\n{text}" for tag, text in page_full
+            )[:6000]
+        else:
+            docs = retrieve(query)
+            context = " ".join(docs)[:3500]
 
         answer = call_llm(query, context, history)
 
