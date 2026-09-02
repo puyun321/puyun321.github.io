@@ -82,27 +82,55 @@ def retrieve(query, top_k=3):
     return [chunks[i][1] for i in top_idx]
 
 
+# Groq retired free-tier access to llama-3.3-70b-versatile (now enterprise-only),
+# so try a list of models the standard API key can reach and use the first that
+# works. Override the order with the GROQ_MODEL env var (comma-separated).
+DEFAULT_MODELS = [
+    "llama-3.1-8b-instant",
+    "openai/gpt-oss-20b",
+    "openai/gpt-oss-120b",
+    "llama-3.3-70b-versatile",
+]
+
+
+def get_models():
+    env = os.environ.get("GROQ_MODEL", "").strip()
+    if env:
+        return [m.strip() for m in env.split(",") if m.strip()]
+    return DEFAULT_MODELS
+
+
 def call_llm(query, context):
-    response = get_groq_client().chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        max_tokens=300,
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are a helpful assistant for Kow Pu Yun's personal portfolio website. "
-                    "Answer questions about Kow Pu Yun based ONLY on the provided context. "
-                    "Be concise (2-4 sentences max). "
-                    "If the context doesn't contain the answer, say so briefly."
-                )
-            },
-            {
-                "role": "user",
-                "content": f"Context:\n{context}\n\nQuestion: {query}"
-            }
-        ]
-    )
-    return response.choices[0].message.content
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a helpful assistant for Kow Pu Yun's personal portfolio website. "
+                "Answer questions about Kow Pu Yun based ONLY on the provided context. "
+                "Be concise (2-4 sentences max). "
+                "If the context doesn't contain the answer, say so briefly."
+            )
+        },
+        {
+            "role": "user",
+            "content": f"Context:\n{context}\n\nQuestion: {query}"
+        }
+    ]
+
+    client = get_groq_client()
+    last_error = None
+    for model in get_models():
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                max_tokens=300,
+                messages=messages,
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            last_error = e
+            print(f"Model {model} failed: {type(e).__name__}: {e}")
+    raise last_error
 
 
 @app.route("/")
