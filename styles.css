@@ -356,6 +356,63 @@ img.icon2 { width: auto; }
     animation: shimmer 8s linear infinite;
 }
 
+/* ---------- sticky glass top nav ---------- */
+.topnav {
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 14px 10px 18px;
+    margin-bottom: 28px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.6);
+}
+.topnav .brand {
+    color: #fff;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.brand-zh { font-weight: 500; opacity: 0.7; }
+.brand-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    animation: pulse-dot 2.4s ease-in-out infinite;
+}
+.nav-items {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.nav-items::-webkit-scrollbar { display: none; }
+.nav-items a {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 7px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.nav-items a:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+.nav-items a.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 6px 18px -6px rgba(99, 102, 241, 0.8);
+}
+
 /* ---------- cards: cursor-follow glow + shimmering top edge ---------- */
 .info-box, .info-box2 { position: relative; overflow: hidden; }
 .info-box::before, .info-box2::before {
@@ -421,7 +478,7 @@ img.icon2 { width: auto; }
     backdrop-filter: blur(14px) saturate(140%);
     -webkit-backdrop-filter: blur(14px) saturate(140%);
     box-shadow: var(--shadow);
-    scroll-margin-top: 20px;
+    scroll-margin-top: 90px;
 }
 .filter-bar:empty { display: none; }
 .filter-bar .search-container { position: relative; margin-bottom: 14px; }
@@ -585,6 +642,8 @@ ul.chip-list li {
 }
 
 @media (max-width: 720px) {
+    .topnav { border-radius: 18px; flex-direction: column; align-items: stretch; gap: 6px; padding: 10px; }
+    .topnav .brand { justify-content: center; }
     h2, h2 .contact { flex-wrap: wrap; }
     h2 { padding: 14px 16px; }
     .chip-label { width: 100%; }
