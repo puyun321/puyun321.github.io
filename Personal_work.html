@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KOW PU YUN 邱普運</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="site.js"></script>
 </head>
 <body>
     <div class="content">
-        <h2>PU YUN's Project and Work
+        <h2><span class="page-title">PU YUN's Project and Work</span>
             <div class="contact">    
                 <span class="small-text">More personal details please check here</span>    
                 <a href="https://orcid.org/0000-0001-5718-9316">
@@ -19,20 +20,24 @@
                 </a>
             </div>
         </h2>
+
+        <div class="filter-bar" data-for="work-list" data-placeholder="Search projects…  (press / to focus)"></div>
+
         <div class="profile-container">
             <div class="info-text2">
                 <div class="info-box2">
-                    <ul>
-                        <li>Air pollution data database</li>
-                        <li><a href="https://github.com/puyun321/air-pollution-forecast" target="_blank" rel="noopener noreferrer">PM2.5 modelling(MCNN-BP)</a></li>
-                        <li><a href="Personal_work/air_pollution/pm25_forecasts" target="_blank" rel="noopener noreferrer">PM2.5 forecasts</a></li>
-                        <li><a href="https://sites.google.com/view/py-airpollution/home" target="_blank" rel="noopener noreferrer">Air pollution image dataset collection</a></li>
-                        <li>Air pollution image classification</li>
-                        <li><a href="http://hyinfo.bse.ntu.edu.tw/sams" target="_blank" rel="noopener noreferrer">Greenhouse dataset collection</a></li>
-                        <li>Mycelia yield factor analysis and prediction</li>
-                        <li><a href="https://github.com/puyun321/groundwater_forecast" target="_blank" rel="noopener noreferrer">Groundwater level and groundwater recharge forecasts</li>
-                        <li><a href="https://github.com/puyun321/Weather-Downscaling" target="_blank" rel="noopener noreferrer">Weather downscaling</a></li>
-                        <li><a href="https://github.com/puyun321/RiverDust_forecast" target="_blank" rel="noopener noreferrer">River Dust forecasts</a></li>
+                    <h3>Projects</h3>
+                    <ul id="work-list" class="filter-list" data-groups="type,topic">
+                        <li data-type="Dataset" data-topic="Air Quality"><span class="item-title">Air pollution data database</span></li>
+                        <li data-type="Model|GitHub" data-topic="Air Quality"><a href="https://github.com/puyun321/air-pollution-forecast" target="_blank" rel="noopener noreferrer">PM2.5 modelling(MCNN-BP)</a></li>
+                        <li data-type="Live Demo" data-topic="Air Quality"><a href="Personal_work/air_pollution/pm25_forecasts" target="_blank" rel="noopener noreferrer">PM2.5 forecasts</a></li>
+                        <li data-type="Dataset" data-topic="Air Quality"><a href="https://sites.google.com/view/py-airpollution/home" target="_blank" rel="noopener noreferrer">Air pollution image dataset collection</a></li>
+                        <li data-type="Model" data-topic="Air Quality"><span class="item-title">Air pollution image classification</span></li>
+                        <li data-type="Dataset" data-topic="Agriculture"><a href="http://hyinfo.bse.ntu.edu.tw/sams" target="_blank" rel="noopener noreferrer">Greenhouse dataset collection</a></li>
+                        <li data-type="Model" data-topic="Agriculture|Biotech"><span class="item-title">Mycelia yield factor analysis and prediction</span></li>
+                        <li data-type="Model|GitHub" data-topic="Groundwater"><a href="https://github.com/puyun321/groundwater_forecast" target="_blank" rel="noopener noreferrer">Groundwater level and groundwater recharge forecasts</a></li>
+                        <li data-type="Model|GitHub" data-topic="Weather &amp; Climate"><a href="https://github.com/puyun321/Weather-Downscaling" target="_blank" rel="noopener noreferrer">Weather downscaling</a></li>
+                        <li data-type="Model|GitHub" data-topic="Air Quality"><a href="https://github.com/puyun321/RiverDust_forecast" target="_blank" rel="noopener noreferrer">River Dust forecasts</a></li>
                     </ul>
                 </div>
             </div>

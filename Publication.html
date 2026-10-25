@@ -3,163 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOW PU YUN 邱普運</title>
+    <title>Publications | KOW PU YUN 邱普運</title>
+    <meta name="description" content="Publications of KOW PU YUN (邱普運): deep learning for air quality, hydrology, flood, groundwater, agriculture and signal processing.">
     <link rel="stylesheet" href="styles.css">
-    <script src="search.js"></script>
+    <script src="site.js"></script>
 </head>
 <body>
     <div class="content">
-        <h2>PU YUN's Publications
-        <div class="contact">	
-            <span class="small-text">More personal details please check here</span>    
+        <h2><span class="page-title">PU YUN's Publications</span>
+        <div class="contact">
+            <span class="small-text">More personal details please check here</span>
             <a href="https://orcid.org/0000-0001-5718-9316">
                 <img class="icon" alt="ORCID" src="https://user-images.githubusercontent.com/41781189/169704142-2cde875d-c8f8-4045-97ed-9b8f63528862.png">
-            </a> 
+            </a>
             <a href="https://www.linkedin.com/in/kow-pu-yun-7aaa7b91/">
                 <img class="icon2" alt="LinkedIn" src="https://user-images.githubusercontent.com/41781189/169704289-190fd250-088c-4a66-bdbe-e02e2b9ee96d.png">
             </a>
         </div>
 	</h2>
 
-        <!-- Search Bar -->
-	<div class="search-container">
-    	    <input type="text" id="search-input" placeholder="Search by Year or Name" onkeyup="searchPapers()">
-	</div>
-        
+        <div class="stats" data-for="pub-list"
+             data-stats="total:Publications,type=Journal:Journal papers,type=Conference:Conference papers,span:Years of research"></div>
+
+        <div class="filter-bar" data-for="pub-list"
+             data-placeholder="Search title, venue, topic or method…  (press / to focus)"></div>
+
         <div class="profile-container">
             <div class="info-text2">
-                <div class="info-box2"> 
-                    <ul>
-			<h3>Paper List</h3>
-                        <li data-year="2026" data-name="An Energy-Efficient Regional PM2.5 Early-Warning Pipeline Integrating Transformer Forecasting, Residual Kriging, and LLM-Based Health Advisory">
-                            <a href="https://doi.org/10.1016/j.rineng.2026.112663" target="_blank">
-                                2026: An Energy-Efficient Regional PM2.5 Early-Warning Pipeline Integrating Transformer Forecasting, Residual Kriging, and LLM-Based Health Advisory
-                            </a>
+                <div class="info-box2">
+                    <h3>Paper List</h3>
+                    <ul id="pub-list" class="filter-list" data-groups="year,type,topic,method">
+                        <li data-year="2026" data-type="Journal" data-topic="Air Quality" data-method="Transformer|Geostatistics|LLM">
+                            <span class="pub-year">2026</span>
+                            <a href="https://doi.org/10.1016/j.rineng.2026.112663" target="_blank">An Energy-Efficient Regional PM2.5 Early-Warning Pipeline Integrating Transformer Forecasting, Residual Kriging, and LLM-Based Health Advisory</a>
+                            <span class="venue">Results in Engineering</span>
                         </li>
-                        <li data-year="2025" data-name="A CNN-transformer framework for air quality forecasting to support aeolian dust management in river basins">
-                            <a href="https://www.sciencedirect.com/science/article/abs/pii/S1474034625006512" target="_blank">
-                                2025: A CNN-transformer framework for air quality forecasting to support aeolian dust management in river basins
-                            </a>
+                        <li data-year="2025" data-type="Journal" data-topic="Air Quality" data-method="CNN|Transformer">
+                            <span class="pub-year">2025</span>
+                            <a href="https://www.sciencedirect.com/science/article/abs/pii/S1474034625006512" target="_blank">A CNN-transformer framework for air quality forecasting to support aeolian dust management in river basins</a>
+                            <span class="venue">Advanced Engineering Informatics</span>
                         </li>
-                        <li data-year="2025" data-name="A speech enhancement method using Fast Fourier Transform and Convolutional Autoencoder">
-                            <a href="https://www.aimsciences.org//article/doi/10.3934/ammc.2025013" target="_blank">
-                                2025: A speech enhancement method using Fast Fourier Transform and Convolutional Autoencoder
-                            </a>
+                        <li data-year="2025" data-type="Journal" data-topic="Signal &amp; Speech" data-method="Autoencoder|CNN">
+                            <span class="pub-year">2025</span>
+                            <a href="https://www.aimsciences.org//article/doi/10.3934/ammc.2025013" target="_blank">A speech enhancement method using Fast Fourier Transform and Convolutional Autoencoder</a>
+                            <span class="venue">Applied Mathematics for Modern Challenges (AIMS)</span>
                         </li>
-                        <li data-year="2025" data-name="AI-driven weather downscaling for smart agriculture using autoencoders and transformers">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0168169925002352" target="_blank">
-                                2025: AI-driven weather downscaling for smart agriculture using autoencoders and transformers
-                            </a>
+                        <li data-year="2025" data-type="Journal" data-topic="Weather &amp; Climate|Agriculture" data-method="Autoencoder|Transformer">
+                            <span class="pub-year">2025</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0168169925002352" target="_blank">AI-driven weather downscaling for smart agriculture using autoencoders and transformers</a>
+                            <span class="venue">Computers and Electronics in Agriculture</span>
                         </li>
-                        <li data-year="2025" data-name="Advanced groundwater level forecasting with hybrid deep learning model: Tackling water challenges in Taiwan’s largest alluvial fan">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0022169425002252" target="_blank">
-                                2025: Advanced groundwater level forecasting with hybrid deep learning model: Tackling water challenges in Taiwan’s largest alluvial fan
-                            </a>
+                        <li data-year="2025" data-type="Journal" data-topic="Groundwater" data-method="Hybrid Model">
+                            <span class="pub-year">2025</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0022169425002252" target="_blank">Advanced groundwater level forecasting with hybrid deep learning model: Tackling water challenges in Taiwan’s largest alluvial fan</a>
+                            <span class="venue">Journal of Hydrology</span>
                         </li>
-                        <li data-year="2025" data-name="An efficient light-weighted signal reconstruction method consists of Fast Fourier Transform and Convolutional-based Autoencoder">
-                            <a href="https://arxiv.org/abs/2501.01650" target="_blank">
-                                2025: An efficient light-weighted signal reconstruction method consists of Fast Fourier Transform and Convolutional-based Autoencoder
-                            </a>
+                        <li data-year="2025" data-type="Preprint" data-topic="Signal &amp; Speech" data-method="Autoencoder|CNN">
+                            <span class="pub-year">2025</span>
+                            <a href="https://arxiv.org/abs/2501.01650" target="_blank">An efficient light-weighted signal reconstruction method consists of Fast Fourier Transform and Convolutional-based Autoencoder</a>
+                            <span class="venue">arXiv</span>
                         </li>
-                        <li data-year="2025" data-name="Intelligent Urban Flood Management Using Real-Time Forecasting, Multi-Objective Optimization, and Adaptive Pump Operation">
-                            <a href="https://www.mdpi.com/2624-6511/8/3/91" target="_blank">
-                                2025: Intelligent Urban Flood Management Using Real-Time Forecasting, Multi-Objective Optimization, and Adaptive Pump Operation
-                            </a>
+                        <li data-year="2025" data-type="Journal" data-topic="Flood|Smart City" data-method="Optimization">
+                            <span class="pub-year">2025</span>
+                            <a href="https://www.mdpi.com/2624-6511/8/3/91" target="_blank">Intelligent Urban Flood Management Using Real-Time Forecasting, Multi-Objective Optimization, and Adaptive Pump Operation</a>
+                            <span class="venue">Smart Cities (MDPI)</span>
                         </li>
-                        <li data-year="2024" data-name="Watershed groundwater level multistep ahead forecasts by fusing convolutional-based autoencoder and LSTM models">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S030147972302577X?via%3Dihub" target="_blank">
-                                2024: Watershed groundwater level multistep ahead forecasts by fusing convolutional-based autoencoder and LSTM models
-                            </a>
+                        <li data-year="2024" data-type="Journal" data-topic="Groundwater" data-method="Autoencoder|CNN|LSTM">
+                            <span class="pub-year">2024</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S030147972302577X?via%3Dihub" target="_blank">Watershed groundwater level multistep ahead forecasts by fusing convolutional-based autoencoder and LSTM models</a>
+                            <span class="venue">Journal of Environmental Management</span>
                         </li>
-                        <li data-year="2024" data-name="環境資訊數位化：深度學習：環境資料數位化的應用">
-                            <a href="https://www.tiri.narl.org.tw/Publication/InstTdy_Full/22798?PubId=241" target="_blank">
-                                2024: 環境資訊數位化：深度學習：環境資料數位化的應用
-                            </a>
+                        <li data-year="2024" data-type="Article" data-topic="Environmental Data" data-method="Deep Learning">
+                            <span class="pub-year">2024</span>
+                            <a href="https://www.tiri.narl.org.tw/Publication/InstTdy_Full/22798?PubId=241" target="_blank">環境資訊數位化：深度學習：環境資料數位化的應用</a>
+                            <span class="venue">科儀新知 (Instruments Today) · 中文</span>
                         </li>
-                        <li data-year="2024" data-name="An Artificial Intelligence-Powered Environmental Control System for Resilient and Efficient Greenhouse Farming">
-                            <a href="https://www.mdpi.com/2071-1050/16/24/10958" target="_blank">
-                                2024: An Artificial Intelligence-Powered Environmental Control System for Resilient and Efficient Greenhouse Farming
-                            </a>
+                        <li data-year="2024" data-type="Journal" data-topic="Agriculture" data-method="Deep Learning">
+                            <span class="pub-year">2024</span>
+                            <a href="https://www.mdpi.com/2071-1050/16/24/10958" target="_blank">An Artificial Intelligence-Powered Environmental Control System for Resilient and Efficient Greenhouse Farming</a>
+                            <span class="venue">Sustainability (MDPI)</span>
                         </li>
-                        <li data-year="2024" data-name="Advancing climate-resilient flood mitigation: Utilizing transformer-LSTM for water level forecasting at pumping stations">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0048969724023891?via%3Dihub" target="_blank">
-                                2024: Advancing climate-resilient flood mitigation: Utilizing transformer-LSTM for water level forecasting at pumping stations
-                            </a>
+                        <li data-year="2024" data-type="Journal" data-topic="Flood" data-method="Transformer|LSTM">
+                            <span class="pub-year">2024</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0048969724023891?via%3Dihub" target="_blank">Advancing climate-resilient flood mitigation: Utilizing transformer-LSTM for water level forecasting at pumping stations</a>
+                            <span class="venue">Science of the Total Environment</span>
                         </li>
-                        <li data-year="2023" data-name="Develop a hybrid machine learning model for promoting microbe biomass production">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S096085242201745X?via%3Dihub" target="_blank">
-                                2023: Develop a hybrid machine learning model for promoting microbe biomass production
-                            </a>
+                        <li data-year="2024" data-type="Conference" data-topic="Agriculture|Weather &amp; Climate" data-method="Deep Learning">
+                            <span class="pub-year">2024</span>
+                            <a href="https://meetingorganizer.copernicus.org/EGU24/EGU24-2292.html" target="_blank">AI-Driven Hydro-Insights: Proactive Water Resource Management for Sustainable Agriculture in the Face of Climate Change</a>
+                            <span class="venue">EGU General Assembly 2024 (seminar paper)</span>
                         </li>
-                        <li data-year="2023" data-name="High-spatiotemporal-resolution PM2.5 forecasting by hybrid deep learning models with ensembled massive heterogeneous monitoring data">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0959652623039835?via%3Dihub" target="_blank">
-                                2023: High-spatiotemporal-resolution PM2.5 forecasting by hybrid deep learning models with ensembled massive heterogeneous monitoring data
-                            </a>
+                        <li data-year="2023" data-type="Journal" data-topic="Biotech" data-method="Hybrid Model|Machine Learning">
+                            <span class="pub-year">2023</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S096085242201745X?via%3Dihub" target="_blank">Develop a hybrid machine learning model for promoting microbe biomass production</a>
+                            <span class="venue">Bioresource Technology</span>
                         </li>
-                        <li data-year="2023" data-name="永續環境願景: 發掘人工智慧的潛力以建構智慧生態系統">
-                            <a href="https://www.airitilibrary.com/Article/Detail/U0001-0421240108022001" target="_blank">
-                                2023: 永續環境願景: 發掘人工智慧的潛力以建構智慧生態系統 (博士論文)
-                            </a>
+                        <li data-year="2023" data-type="Journal" data-topic="Air Quality" data-method="Hybrid Model|CNN">
+                            <span class="pub-year">2023</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0959652623039835?via%3Dihub" target="_blank">High-spatiotemporal-resolution PM2.5 forecasting by hybrid deep learning models with ensembled massive heterogeneous monitoring data</a>
+                            <span class="venue">Journal of Cleaner Production</span>
                         </li>
-                        <li data-year="2022" data-name="Real-time image-based air quality estimation by deep learning neural networks">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0301479722001335?via%3Dihub" target="_blank">
-                                2022: Real-time image-based air quality estimation by deep learning neural networks
-                            </a>
+                        <li data-year="2023" data-type="Thesis" data-topic="Sustainability" data-method="Deep Learning">
+                            <span class="pub-year">2023</span>
+                            <a href="https://www.airitilibrary.com/Article/Detail/U0001-0421240108022001" target="_blank">永續環境願景: 發掘人工智慧的潛力以建構智慧生態系統</a>
+                            <span class="venue">PhD Dissertation (博士論文), National Taiwan University · 中文</span>
                         </li>
-                        <li data-year="2022" data-name="Deep neural networks for spatiotemporal PM2.5 forecasts based on atmospheric chemical transport model output and monitoring data">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0269749122005620?via%3Dihub" target="_blank">
-                                2022: Deep neural networks for spatiotemporal PM2.5 forecasts based on atmospheric chemical transport model output and monitoring data
-                            </a>
+                        <li data-year="2023" data-type="Conference" data-topic="Agriculture" data-method="Deep Learning">
+                            <span class="pub-year">2023</span>
+                            <a href="Publication/pawees2023_abstract.pdf" target="_blank">A Vision of Agriculture 4.0: Constructing Smart Agriculture through Artificial Intelligent</a>
+                            <span class="venue">PAWEES 2023 (seminar paper) · Outstanding Paper Award</span>
                         </li>
-                        <li data-year="2022" data-name="Integrate deep learning and physically-based models for multi-step-ahead microclimate forecasting">
-                            <a href="https://www.sciencedirect.com/science/article/abs/pii/S0957417422015688?via%3Dihub" target="_blank">
-                                2022: Integrate deep learning and physically-based models for multi-step-ahead microclimate forecasting
-                            </a>
+                        <li data-year="2022" data-type="Journal" data-topic="Air Quality" data-method="Computer Vision|CNN">
+                            <span class="pub-year">2022</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0301479722001335?via%3Dihub" target="_blank">Real-time image-based air quality estimation by deep learning neural networks</a>
+                            <span class="venue">Journal of Environmental Management</span>
                         </li>
-                        <li data-year="2021" data-name="建構水-糧食-能源智慧調控模式之永續發展城市">
-                            <a href="https://www.airitilibrary.com/Article/Detail/P20150925002-202108-202109070002-202109070002-19-22" target="_blank">
-                                2021: 建構水-糧食-能源智慧調控模式之永續發展城市
-                            </a>
+                        <li data-year="2022" data-type="Journal" data-topic="Air Quality" data-method="Hybrid Model|Deep Learning">
+                            <span class="pub-year">2022</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0269749122005620?via%3Dihub" target="_blank">Deep neural networks for spatiotemporal PM2.5 forecasts based on atmospheric chemical transport model output and monitoring data</a>
+                            <span class="venue">Environmental Pollution</span>
                         </li>
-                        <li data-year="2020" data-name="Seamless integration of convolutional and back-propagation neural networks for regional multi-step-ahead PM2.5 forecasting">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0959652620313329?via%3Dihub" target="_blank">
-                                2020: Seamless integration of convolutional and back-propagation neural networks for regional multi-step-ahead PM2.5 forecasting
-                            </a>
+                        <li data-year="2022" data-type="Journal" data-topic="Weather &amp; Climate|Agriculture" data-method="Hybrid Model|Deep Learning">
+                            <span class="pub-year">2022</span>
+                            <a href="https://www.sciencedirect.com/science/article/abs/pii/S0957417422015688?via%3Dihub" target="_blank">Integrate deep learning and physically-based models for multi-step-ahead microclimate forecasting</a>
+                            <span class="venue">Expert Systems with Applications</span>
                         </li>
-                        <li data-year="2020" data-name="Interactive Urban Building Energy Modelling with Functional Mockup Interface of a Local Residential Building Stock">
-                            <a href="https://www.sciencedirect.com/science/article/pii/S0959652620357292" target="_blank">
-                                2020: Interactive Urban Building Energy Modelling with Functional Mockup Interface of a Local Residential Building Stock
-
-                            </a>
+                        <li data-year="2022" data-type="Conference" data-topic="Groundwater" data-method="Hybrid Model|Machine Learning">
+                            <span class="pub-year">2022</span>
+                            <a href="https://agu.confex.com/agu/fm22/meetingapp.cgi/Paper/1101032" target="_blank">A study on spatiotemporal groundwater level forecasting by a hybridization of machine learning and physically-based models</a>
+                            <span class="venue">AGU Fall Meeting 2022 (seminar paper)</span>
                         </li>
-                        <li data-year="2020" data-name="卷積層與倒傳遞混合式類神經網路針對大區域之 PM2. 5 進行長時距預測">
-                            <a href="https://www.airitilibrary.com/Article/Detail/U0001-1407202016471900" target="_blank">
-                                2020: 卷積層與倒傳遞混合式類神經網路針對大區域之 PM2. 5 進行長時距預測 (碩士論文)
-                            </a>
+                        <li data-year="2021" data-type="Article" data-topic="Sustainability|Smart City" data-method="Machine Learning">
+                            <span class="pub-year">2021</span>
+                            <a href="https://www.airitilibrary.com/Article/Detail/P20150925002-202108-202109070002-202109070002-19-22" target="_blank">建構水-糧食-能源智慧調控模式之永續發展城市</a>
+                            <span class="venue">Article · 中文</span>
                         </li>
-                        <li data-year="2024" data-name="AI-Driven Hydro-Insights: Proactive Water Resource Management for Sustainable Agriculture in the Face of Climate Change">
-                            <a href="https://meetingorganizer.copernicus.org/EGU24/EGU24-2292.html" target="_blank">
-                                2024: AI-Driven Hydro-Insights: Proactive Water Resource Management for Sustainable Agriculture in the Face of Climate Change (seminar paper)
-                            </a>
+                        <li data-year="2020" data-type="Journal" data-topic="Air Quality" data-method="CNN|Deep Learning">
+                            <span class="pub-year">2020</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0959652620313329?via%3Dihub" target="_blank">Seamless integration of convolutional and back-propagation neural networks for regional multi-step-ahead PM2.5 forecasting</a>
+                            <span class="venue">Journal of Cleaner Production</span>
                         </li>
-                        <li data-year="2023" data-name="A Vision of Agriculture 4.0: Constructing Smart Agriculture through Artificial Intelligent">
-                            <a href="Publication/pawees2023_abstract.pdf" target="_blank">
-                                2023: A Vision of Agriculture 4.0: Constructing Smart Agriculture through Artificial Intelligent (seminar paper)
-                            </a>
+                        <li data-year="2020" data-type="Journal" data-topic="Energy|Smart City" data-method="Simulation">
+                            <span class="pub-year">2020</span>
+                            <a href="https://www.sciencedirect.com/science/article/pii/S0959652620357292" target="_blank">Interactive Urban Building Energy Modelling with Functional Mockup Interface of a Local Residential Building Stock</a>
+                            <span class="venue">Journal of Cleaner Production</span>
                         </li>
-                        <li data-year="2022" data-name="A study on spatiotemporal groundwater level forecasting by a hybridization of machine learning and physically-based models">
-                            <a href="https://agu.confex.com/agu/fm22/meetingapp.cgi/Paper/1101032" target="_blank">
-                                2022: A study on spatiotemporal groundwater level forecasting by a hybridization of machine learning and physically-based models (seminar paper)
-                            </a>
+                        <li data-year="2020" data-type="Thesis" data-topic="Air Quality" data-method="CNN|Deep Learning">
+                            <span class="pub-year">2020</span>
+                            <a href="https://www.airitilibrary.com/Article/Detail/U0001-1407202016471900" target="_blank">卷積層與倒傳遞混合式類神經網路針對大區域之 PM2. 5 進行長時距預測</a>
+                            <span class="venue">Master's Thesis (碩士論文), National Taiwan University · 中文</span>
                         </li>
-                        <li data-year="2020" data-name="Image Regression Classification of Air Quality by Convolutional Neural Network">
-                            <a href="https://meetingorganizer.copernicus.org/EGU2020/EGU2020-7275.html" target="_blank">
-                                2020: Image Regression Classification of Air Quality by Convolutional Neural Network (seminar paper)
-                            </a>
+                        <li data-year="2020" data-type="Conference" data-topic="Air Quality" data-method="Computer Vision|CNN">
+                            <span class="pub-year">2020</span>
+                            <a href="https://meetingorganizer.copernicus.org/EGU2020/EGU2020-7275.html" target="_blank">Image Regression Classification of Air Quality by Convolutional Neural Network</a>
+                            <span class="venue">EGU General Assembly 2020 (seminar paper)</span>
                         </li>
-
                     </ul>
-                    <p>More publications can be found at: 
+                    <p>More publications can be found at:
                        <a href="https://www.researchgate.net/profile/Kow-Pu-Yun" target="_blank">
                            ResearchGate Profile
                        </a>
@@ -168,7 +168,7 @@
             </div> <!-- End of info-text2 -->
 
             <div class="info-text">
-                <div class="info-box"> 
+                <div class="info-box">
                     <h3>Other Personal Details</h3>
                     <ul>
                         <li><a href="https://puyun321.github.io/">Back to Homepage (Personal info)</a></li>
@@ -179,10 +179,10 @@
                     </ul>
                     <h3>Support or Contact</h3>
                     <p>Email: <a href="mailto:169016@o365.tku.edu.tw">169016@o365.tku.edu.tw</a></p>
-                    <p>More personal details</p> 
+                    <p>More personal details</p>
 		    <a href="https://orcid.org/0000-0001-5718-9316">
                     	<img class="icon" alt="ORCID" src="https://user-images.githubusercontent.com/41781189/169704142-2cde875d-c8f8-4045-97ed-9b8f63528862.png">
-                    </a> 
+                    </a>
                     <a href="https://www.linkedin.com/in/kow-pu-yun-7aaa7b91/">
                     		<img class="icon2" alt="LinkedIn" src="https://user-images.githubusercontent.com/41781189/169704289-190fd250-088c-4a66-bdbe-e02e2b9ee96d.png">
                     </a>

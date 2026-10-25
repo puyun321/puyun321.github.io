@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KOW PU YUN 邱普運</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="site.js"></script>
 </head>
 <body>
     <div class="content">
-        <h2>Working Experience
+        <h2><span class="page-title">Working Experience</span>
         <div class="contact">	
             <span class="small-text">More personal details please check here</span>    
             <a href="https://orcid.org/0000-0001-5718-9316">
@@ -19,19 +20,21 @@
             </a>
         </div>
 	</h2>
-        
+
+        <div class="filter-bar" data-for="exp-list" data-placeholder="Search experience…  (press / to focus)"></div>
+
         <div class="profile-container">
             <div class="info-text2">
-                <div class="info-box2"> 
-                    <ul>
-                                      <li><a href="https://www.ai.tku.edu.tw/Front/highschoolarea/professionals/Members.aspx?id=U31ElsZQbus=&PID=0000000042"> Assistant Professor at Tamkang  University (2025/06/30 ~ present) </a></li>
-                                      <li><a href="Personal_Experience/在職證明.pdf"> Posdoctoral Research at National Taiwan University (From 2024/03/01 ~ 2025/06/30) </a></li>
-                                      <li><a href="Personal_Experience/政大演講2024-merge.jpg"> Lecturer for National ChengChi University  (2024/9/16) </a></li>
-                                      <li> <a href="Personal_Experience/文化大學工作證明2024.pdf">Lecturer for "AI應用智慧城市 淹水預報及空污檢測班" (Summer course) (2024) </a></li>
-                                      <li> <a href="Personal_Experience/文化大學工作證明2022.pdf">Lecturer for "AI應用智慧城市 淹水預報及空污檢測班" (Summer course) (2022) </a></li>
-                        <li> Lecturer for C# user interface course (2019, 2024) </li>
-                        <li> Teaching Assistant of Artificial Neural Network "類神經網路導論：原理與應用" (2019, 2020, 2021) </li>
-                        
+                <div class="info-box2">
+                    <h3>Experience</h3>
+                    <ul id="exp-list" class="filter-list" data-groups="year,type">
+                        <li data-year="2025" data-type="Faculty"><span class="pub-year">2025</span><a href="https://www.ai.tku.edu.tw/Front/highschoolarea/professionals/Members.aspx?id=U31ElsZQbus=&PID=0000000042">Assistant Professor at Tamkang University (2025/06/30 ~ present)</a></li>
+                        <li data-year="2024|2025" data-type="Research"><span class="pub-year">2024</span><a href="Personal_Experience/在職證明.pdf">Postdoctoral Researcher at National Taiwan University (2024/03/01 ~ 2025/06/30)</a></li>
+                        <li data-year="2024" data-type="Lecturer|Invited Talk"><span class="pub-year">2024</span><a href="Personal_Experience/政大演講2024-merge.jpg">Lecturer for National ChengChi University (2024/9/16)</a></li>
+                        <li data-year="2024" data-type="Lecturer"><span class="pub-year">2024</span><a href="Personal_Experience/文化大學工作證明2024.pdf">Lecturer for "AI應用智慧城市 淹水預報及空污檢測班" (Summer course) (2024)</a></li>
+                        <li data-year="2022" data-type="Lecturer"><span class="pub-year">2022</span><a href="Personal_Experience/文化大學工作證明2022.pdf">Lecturer for "AI應用智慧城市 淹水預報及空污檢測班" (Summer course) (2022)</a></li>
+                        <li data-year="2019|2024" data-type="Lecturer"><span class="pub-year">2019</span><span class="item-title">Lecturer for C# user interface course (2019, 2024)</span></li>
+                        <li data-year="2019|2020|2021" data-type="Teaching Assistant"><span class="pub-year">2019</span><span class="item-title">Teaching Assistant of Artificial Neural Network "類神經網路導論：原理與應用" (2019, 2020, 2021)</span></li>
                     </ul>
 
                 </div> <!-- End of info-box2 -->
