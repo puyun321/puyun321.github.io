@@ -1,5 +1,5 @@
 /* =============================================================
-   Shared site behaviour: top nav, search + tag filtering,
+   Shared site behaviour: search + tag filtering,
    stats counters and small animations.
 
    A list becomes filterable by giving it class "filter-list", an id,
@@ -9,14 +9,6 @@
    search box and tag chips.
    ============================================================= */
 (function () {
-    const PAGES = [
-        ["/", "Home"],
-        ["Publication", "Publications"],
-        ["Personal_work", "Projects"],
-        ["Academic_Award", "Awards"],
-        ["Teaching_Experience", "Experience"],
-        ["My_Hobbies", "Hobbies"]
-    ];
     const GROUP_LABELS = { year: "Year", type: "Type", topic: "Topic", method: "Method" };
 
     const el = (tag, cls, text) => {
@@ -28,28 +20,6 @@
     const values = (li, g) => (li.dataset[g] || "").split("|").map((s) => s.trim()).filter(Boolean);
     const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-    /* ---------- top navigation ---------- */
-    function initNav() {
-        const content = document.querySelector(".content");
-        if (!content) return;
-        const here = location.pathname.split("/").pop().replace(/\.html$/, "");
-        const nav = el("nav", "topnav");
-        const brand = el("a", "brand");
-        brand.href = "/";
-        brand.innerHTML = '<span class="brand-dot"></span>PU YUN <span class="brand-zh">邱普運</span>';
-        nav.appendChild(brand);
-        const links = el("div", "nav-items");
-        PAGES.forEach(([href, label]) => {
-            const a = el("a", "", label);
-            a.href = href;
-            const isHome = href === "/" && (here === "" || here === "index");
-            if (isHome || href === here) a.classList.add("active");
-            links.appendChild(a);
-        });
-        nav.appendChild(links);
-        content.prepend(nav);
-    }
 
     /* ---------- filterable lists ---------- */
     function initFilterList(list) {
@@ -105,7 +75,8 @@
             entries.forEach(([v, n]) => {
                 const c = el("button", "chip chip-" + g);
                 c.type = "button";
-                c.innerHTML = escapeHtml(v) + ' <span class="chip-count">' + n + "</span>";
+                c.innerHTML = escapeHtml(v) + '<span class="chip-count">' + n + "</span>";
+                c.title = v + ": " + n + (n === 1 ? " item" : " items");
                 c.onclick = () => toggle(g, v);
                 row.appendChild(c);
                 chipIndex[g + "\u0000" + v] = c;
@@ -250,7 +221,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-        initNav();
         document.querySelectorAll(".filter-list[id]").forEach(initFilterList);
         document.querySelectorAll(".stats[data-for]").forEach(initStats);
         initEffects();
